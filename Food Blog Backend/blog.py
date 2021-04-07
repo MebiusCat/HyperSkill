@@ -31,26 +31,13 @@ class RecipeDatabase:
             );   
             ''')
 
-            for meal in self.food_data['meals']:
-                cursor = data.cursor()
-                cursor.execute('''
-                INSERT OR IGNORE INTO meals (meal_name)
-                VALUES (?);
-                ''', (meal,))
-
-            for ingredient in self.food_data['ingredients']:
-                cursor = data.cursor()
-                cursor.execute('''
-                INSERT OR IGNORE INTO ingredients (ingredient_name)
-                VALUES (?);
-                ''', (ingredient,))
-
-            for measure in self.food_data['measures']:
-                cursor = data.cursor()
-                cursor.execute('''
-                INSERT OR IGNORE INTO measures (measure_name)
-                VALUES (?);
-                ''', (measure,))
+            for table_name, table_elem in self.food_data.items():
+                for elem in table_elem:
+                    cursor = data.cursor()
+                    cursor.execute(f'''
+                    INSERT OR IGNORE INTO {table_name}
+                    VALUES (?,?);
+                    ''', (None, elem))
 
 
 my_base = RecipeDatabase()
