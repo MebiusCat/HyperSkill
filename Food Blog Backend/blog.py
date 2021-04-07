@@ -13,6 +13,7 @@ class RecipeDatabase:
         else:
             self.__database__ = 'food_blog.db'
         self.database()
+        self.populate_book()
 
     def database(self):
         with sqlite3.connect(self.__database__) as data:
@@ -29,6 +30,11 @@ class RecipeDatabase:
             measure_id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
             measure_name TEXT UNIQUE
             );   
+            CREATE TABLE IF NOT EXISTS recipes (
+            recipe_id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+            recipe_name TEXT NOT NULL,
+            recipe_description TEXT
+            );             
             ''')
 
             for table_name, table_elem in self.food_data.items():
@@ -38,6 +44,23 @@ class RecipeDatabase:
                     INSERT OR IGNORE INTO {table_name}
                     VALUES (?,?);
                     ''', (None, elem))
+
+    def add_recipe(self, name, description):
+        with sqlite3.connect(self.__database__) as data:
+            cursor = data.cursor()
+            cursor.execute('''
+            INSERT OR IGNORE INTO recipes (recipe_name, recipe_description)
+            VALUES (?, ?);
+            ''', (name, description))
+
+    def populate_book(self):
+        print('Pass the empty recipe name to exit.')
+        while True:
+            name = input('Recipe name: ')
+            if not name:
+                exit()
+            desc = input('Recipe description: ')
+            self.add_recipe(name, desc)
 
 
 my_base = RecipeDatabase()
