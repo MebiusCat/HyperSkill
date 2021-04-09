@@ -34,7 +34,17 @@ class RecipeDatabase:
             recipe_id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
             recipe_name TEXT NOT NULL,
             recipe_description TEXT
-            );             
+            );   
+            PRAGMA foreign_keys = ON;
+            CREATE TABLE IF NOT EXISTS serve (
+            serve_id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+            recipe_id INTEGER NOT NULL,
+            meal_id INTEGER NOT NULL,
+            FOREIGN KEY(recipe_id) 
+               REFERENCES recipes(recipe_id),
+             FOREIGN KEY(meal_id) 
+               REFERENCES meals(meal_id)              
+            );                       
             ''')
 
             for table_name, table_elem in self.food_data.items():
@@ -52,6 +62,25 @@ class RecipeDatabase:
             INSERT OR IGNORE INTO recipes (recipe_name, recipe_description)
             VALUES (?, ?);
             ''', (name, description))
+            return cursor.lastrowid
+
+    def add_serve(self, recipe_id, meals):
+        with sqlite3.connect(self.__database__) as data:
+            for meal_id in meals:
+                cursor = data.cursor()
+                cursor.execute('''
+                INSERT OR IGNORE INTO serve (recipe_id, meal_id)
+                VALUES (?, ?);
+                ''', (recipe_id, meal_id))
+
+    def get_meals(self):
+        with sqlite3.connect(self.__database__) as data:
+            cursor = data.cursor()
+            cursor.execute('''
+            SELECT meal_id, meal_name
+            FROM meals;
+            ''')
+            return cursor.fetchall()
 
     def populate_book(self):
         print('Pass the empty recipe name to exit.')
@@ -60,7 +89,14 @@ class RecipeDatabase:
             if not name:
                 exit()
             desc = input('Recipe description: ')
-            self.add_recipe(name, desc)
+            recipe_id = self.add_recipe(name, desc)
+
+            meals_db = self.get_meals()
+            for id_, meal in meals_db:
+                print(f'{id_}) {meal}  ', end='')
+            prompt_ = '\nWhen the dish can be served:'
+            result = list(map(int, input(prompt_).split()))
+            self.add_serve(recipe_id, result)
 
 
 my_base = RecipeDatabase()
