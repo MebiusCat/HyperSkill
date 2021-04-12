@@ -8,12 +8,8 @@ class RecipeDatabase:
                  "measures": ("ml", "g", "l", "cup", "tbsp", "tsp", "dsp", "")}
     
     def __init__(self):
-        parser = argparse.ArgumentParser()
-        parser.add_argument("database", type=str)
-        parser.add_argument("--ingredients")
-        parser.add_argument("--meals")
 
-        self.args = parser.parse_args()
+        self.args = self.parse_args()
         self.__database__ = self.args.database
         # self.__database__ = 'food_blog.db'
 
@@ -23,6 +19,14 @@ class RecipeDatabase:
             self.searching()
         else:
             self.populate_book()
+
+    def parse_args(self):
+        parser = argparse.ArgumentParser()
+        parser.add_argument("database", type=str)
+        parser.add_argument("--ingredients")
+        parser.add_argument("--meals")
+
+        return parser.parse_args()
 
     def database(self):
         with sqlite3.connect(self.__database__) as data:
