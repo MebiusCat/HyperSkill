@@ -1,5 +1,5 @@
-import sys
 import sqlite3
+import argparse
 
 
 class RecipeDatabase:
@@ -8,12 +8,21 @@ class RecipeDatabase:
                  "measures": ("ml", "g", "l", "cup", "tbsp", "tsp", "dsp", "")}
     
     def __init__(self):
-        if len(sys.argv) > 1:
-            self.__database__ = sys.argv[1]
-        else:
-            self.__database__ = 'food_blog.db'
+        parser = argparse.ArgumentParser()
+        parser.add_argument("database", type=str)
+        parser.add_argument("--ingredients")
+        parser.add_argument("--meals")
+
+        self.args = parser.parse_args()
+        self.__database__ = self.args.database
+        # self.__database__ = 'food_blog.db'
+
         self.database()
-        self.populate_book()
+
+        if self.args.ingredients or self.args.meals:
+            self.searching()
+        else:
+            self.populate_book()
 
     def database(self):
         with sqlite3.connect(self.__database__) as data:
@@ -144,6 +153,7 @@ class RecipeDatabase:
 
     def populate_book(self):
         print('Pass the empty recipe name to exit.')
+
         while True:
             name = input('Recipe name: ')
             if not name:
@@ -178,6 +188,65 @@ class RecipeDatabase:
                     print('The ingredient is not conclusive!')
                     continue
                 self.add_quantity(value, measure, ingredient, recipe_id)
+
+    def searching(self):
+
+        ingredients = self.args.ingredients.split(',')
+        meals = self.args.meals.split(',')
+
+        if meals:
+            with sqlite3.connect(self.__database__) as data:
+                cursor = data.cursor()
+                cursor.execute('''
+                SELECT recipe_id
+                FROM serve
+                WHERE meal_id IN (SELECT DISTINCT meal_id
+                              FROM meals
+                              WHERE meal_name IN ({seq}));
+                '''.format(seq=','.join(['?'] * len(meals))), meals)
+        else:
+            with sqlite3.connect(self.__database__) as data:
+                cursor = data.cursor()
+                cursor.execute('''
+                SELECT DISTINCT recipe_id
+                FROM serve);
+                ''')
+
+        result = set()
+        for recipe in cursor.fetchall():
+            result.add(recipe[0])
+
+        if ingredients:
+            for elem in ingredients:
+                with sqlite3.connect(self.__database__) as data:
+                    cursor = data.cursor()
+                    cursor.execute('''
+                    SELECT recipe_id
+                    FROM quantity
+                    WHERE ingredient_id IN (SELECT DISTINCT ingredient_id
+                                  FROM ingredients
+                                  WHERE ingredient_name = ?);
+                    ''', (elem,))
+                result_ = set()
+                for recipe in cursor.fetchall():
+                    result_.add(recipe[0])
+                result = result.intersection(result_)
+                if not result:
+                    print('There are no such recipes in the database.')
+                    exit()
+
+        if result:
+            with sqlite3.connect(self.__database__) as data:
+                cursor = data.cursor()
+                cursor.execute('''
+                SELECT recipe_name
+                FROM recipes
+                WHERE recipe_id IN ({seq});
+                '''.format(seq=','.join(['?'] * len(result))), list(result))
+            result_ = []
+            for recipe in cursor.fetchall():
+                result_.append(recipe[0])
+            print('Recipes selected for you: ', ', '.join(result_))
 
 
 my_base = RecipeDatabase()
