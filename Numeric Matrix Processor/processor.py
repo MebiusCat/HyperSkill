@@ -1,22 +1,87 @@
-n1, m1 = map(int, input().split())
-matrix1 = [list(map(int, input().split())) for _ in range(n1)]
-n2, m2 = map(int, input().split())
-matrix2 = [list(map(int, input().split())) for _ in range(n2)]
+class Matrix:
+    def __init__(self):
+        self.clear_data()
 
-# n1, m1 = 4, 5
-# matrix1 = [[1, 2, 3, 4, 5],
-#          [3, 2, 3, 2, 1],
-#          [8, 0, 9, 9, 1],
-#          [1, 3, 4, 5, 6]]
-# n2, m2 = 4, 5
-# matrix2 = [[1, 1, 4, 4, 5],
-#          [4, 4, 5, 7, 8],
-#          [1, 2, 3, 9, 8],
-#          [1, 0, 0, 0, 1]]
+    def read_mtrx(self, test_n="", test_el=None):
+        self.counter += 1
+        adj = "first" if self.counter == 1 else "second"
+        str_n = input("Enter size of {adj} matrix:") if test_n == "" else test_n
+        n, m = map(int, str_n.split())
 
-if n1 == n2 and m1 == m2:
-    matrix3 = [[matrix1[i][j] + matrix2[i][j] for j in range(m1)] for i in range(n1)]
-    for row in matrix3:
-        print(*row)
-else:
-    print("ERROR")
+        if test_el is None:
+            print(f"Enter {adj} matrix:")
+            str_el = []
+            for _ in range(n):
+                str_el.append(input())
+        else:
+            str_el = test_el
+        mtrx = [list(map(int, line.split())) for line in str_el]
+        return mtrx, n, m
+
+    def addition(self):
+        if self.nA == self.nB and self.mA == self.mB:
+            self.mtrx_R = [[self.mtrx_A[i][j] + self.mtrx_B[i][j] for j in range(self.mA)] for i in range(self.nA)]
+            self.print_result()
+        else:
+            print("The operation cannot be performed.")
+
+    def const_mult(self):
+        mult_const = int(input('Enter constant: '))
+        self.mtrx_R = [[self.mtrx_A[i][j] * mult_const for j in range(self.mA)] for i in range(self.nA)]
+        self.print_result()
+
+    def mult(self):
+        if self.nA == self.nB and self.mA == self.mB:
+            self.mtrx_R = [[self.mtrx_A[i][j] + self.mtrx_B[i][j] for j in range(self.mA)] for i in range(self.nA)]
+            self.print_result()
+        else:
+            print("ERROR")
+
+    def print_result(self):
+        print("The result is:")
+        for row in self.mtrx_R:
+            print(*row)
+
+    def clear_data(self):
+        self.mtrx_A, self.nA, self.mA = None, 0, 0
+        self.mtrx_B, self.nB, self.mB = None, 0, 0
+        self.mtrx_R, self.nR, self.mR = None, 0, 0
+        self.counter = 0
+
+    def main(self):
+        while True:
+            menu = ["1. Add matrices",
+                    "2. Multiply matrix by a constant",
+                    "3. Multiply matrices",
+                    "0. Exit"]
+            print(*menu, sep='\n')
+
+            choice: str = input()
+            print(f'Your choice: > {choice}')
+            if choice == '1':
+                self.mtrx_A, self.nA, self.mA = self.read_mtrx()
+                self.mtrx_B, self.nB, self.mB = self.read_mtrx()
+                self.addition()
+            elif choice == '2':
+                self.mtrx_A, self.nA, self.mA = self.read_mtrx()
+                self.const_mult()
+            elif choice == '3':
+                self.mtrx_A, self.nA, self.mA = self.read_mtrx()
+                self.mtrx_B, self.nB, self.mB = self.read_mtrx()
+                self.mult()
+            elif choice == '0':
+                print('Bye!')
+                exit()
+            else:
+                print('Unknown option.')
+
+
+line_1 = '4 5'
+line_2 = ['1 2 3 4 5','3 2 3 2 1','8 0 9 9 1','1 3 4 5 6']
+line_3 = '4 5'
+line_4 = ['1 1 4 4 5','4 4 5 7 8','1 2 3 9 8','1 0 0 0 1']
+
+fabric = Matrix()
+fabric.mtrx_A, fabric.nA, fabric.mA = fabric.read_mtrx(line_1, line_2)
+fabric.const_mult()
+
