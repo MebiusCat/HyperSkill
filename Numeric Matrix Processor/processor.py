@@ -30,6 +30,23 @@ class Matrix:
         self.mtrx_R = [[self.mtrx_A[i][j] * mult_const for j in range(self.mA)] for i in range(self.nA)]
         self.print_result()
 
+    def transpose(self, param):
+        if param == '1':
+            self.mtrx_R = [[self.mtrx_A[j][i] for j in range(self.mA)] for i in range(self.nA)]
+        elif param == '2':
+            self.mtrx_R = []
+            for i in reversed(range(self.nA)):
+                self.mtrx_R.append([self.mtrx_A[j][i] for j in range(self.mA)][::-1])
+            # self.mtrx_R = [[self.mtrx_A[self.nA - i][self.mA - j] for j in range(self.mA)] for i in range(self.nA)]
+        elif param == '3':
+            self.mtrx_R = [self.mtrx_A[i][::-1] for i in range(self.nA)]
+        elif param == '4':
+            self.mtrx_R = []
+            for i in reversed(range(self.nA)):
+                self.mtrx_R.append([self.mtrx_A[i][j] for j in range(self.mA)])
+
+        self.print_result()
+
     def mult(self):
         if self.mA == self.nB:
             self.mtrx_R = [[0 for j in range(self.mB)] for i in range(self.nA)]
@@ -56,6 +73,7 @@ class Matrix:
             menu = ["1. Add matrices",
                     "2. Multiply matrix by a constant",
                     "3. Multiply matrices",
+                    "4. Transpose matrix",
                     "0. Exit"]
             print(*menu, sep='\n')
 
@@ -72,6 +90,15 @@ class Matrix:
                 self.mtrx_A, self.nA, self.mA = self.read_mtrx()
                 self.mtrx_B, self.nB, self.mB = self.read_mtrx()
                 self.mult()
+            elif choice == '4':
+                diag_menu = ["1. Main diagonal",
+                             "2. Side diagonal",
+                             "3. Vertical line",
+                             "4. Horizontal line"]
+                print(*diag_menu, sep='\n')
+                diag_choice : str = input()
+                self.mtrx_A, self.nA, self.mA = self.read_mtrx()
+                self.transpose(diag_choice)
             elif choice == '0':
                 print('Bye!')
                 exit()
@@ -90,11 +117,11 @@ line_2 = ['1 7 7','6 6 4','4 2 1']
 line_3 = '3 3'
 line_4 = ['3 2 4','5 5 9','8 0 10']
 
-
+#
 # fabric = Matrix()
 # fabric.mtrx_A, fabric.nA, fabric.mA = fabric.read_mtrx(line_1, line_2)
-# fabric.mtrx_B, fabric.nB, fabric.mB = fabric.read_mtrx(line_3, line_4)
-# fabric.mult()
+# # fabric.mtrx_B, fabric.nB, fabric.mB = fabric.read_mtrx(line_3, line_4)
+# fabric.transpose('1')
 
 fabric = Matrix()
 fabric.main()
