@@ -5,7 +5,7 @@ class Matrix:
     def read_mtrx(self, test_n="", test_el=None):
         self.counter += 1
         adj = "first" if self.counter == 1 else "second"
-        str_n = input("Enter size of {adj} matrix:") if test_n == "" else test_n
+        str_n = input(f"Enter size of {adj} matrix:") if test_n == "" else test_n
         n, m = map(int, str_n.split())
 
         if test_el is None:
@@ -15,7 +15,7 @@ class Matrix:
                 str_el.append(input())
         else:
             str_el = test_el
-        mtrx = [list(map(int, line.split())) for line in str_el]
+        mtrx = [list(map(float, line.split())) for line in str_el]
         return mtrx, n, m
 
     def addition(self):
@@ -31,8 +31,11 @@ class Matrix:
         self.print_result()
 
     def mult(self):
-        if self.nA == self.nB and self.mA == self.mB:
-            self.mtrx_R = [[self.mtrx_A[i][j] + self.mtrx_B[i][j] for j in range(self.mA)] for i in range(self.nA)]
+        if self.mA == self.nB:
+            self.mtrx_R = [[0 for j in range(self.mB)] for i in range(self.nA)]
+            for i in range(self.nA):
+                for j in range(self.mB):
+                    self.mtrx_R[i][j] = sum([self.mtrx_A[i][k]*self.mtrx_B[k][j] for k in range(self.nB)])
             self.print_result()
         else:
             print("ERROR")
@@ -81,7 +84,17 @@ line_2 = ['1 2 3 4 5','3 2 3 2 1','8 0 9 9 1','1 3 4 5 6']
 line_3 = '4 5'
 line_4 = ['1 1 4 4 5','4 4 5 7 8','1 2 3 9 8','1 0 0 0 1']
 
-fabric = Matrix()
-fabric.mtrx_A, fabric.nA, fabric.mA = fabric.read_mtrx(line_1, line_2)
-fabric.const_mult()
 
+line_1 = '3 3'
+line_2 = ['1 7 7','6 6 4','4 2 1']
+line_3 = '3 3'
+line_4 = ['3 2 4','5 5 9','8 0 10']
+
+
+# fabric = Matrix()
+# fabric.mtrx_A, fabric.nA, fabric.mA = fabric.read_mtrx(line_1, line_2)
+# fabric.mtrx_B, fabric.nB, fabric.mB = fabric.read_mtrx(line_3, line_4)
+# fabric.mult()
+
+fabric = Matrix()
+fabric.main()
