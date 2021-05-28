@@ -34,25 +34,17 @@ class Matrix:
         if param == '1':
             self.mtrx_R = [[self.mtrx_A[j][i] for j in range(self.mA)] for i in range(self.nA)]
         elif param == '2':
-            self.mtrx_R = []
-            for i in reversed(range(self.nA)):
-                self.mtrx_R.append([self.mtrx_A[j][i] for j in range(self.mA)][::-1])
-            # self.mtrx_R = [[self.mtrx_A[self.nA - i][self.mA - j] for j in range(self.mA)] for i in range(self.nA)]
+            self.mtrx_R = [[self.mtrx_A[j][i] for j in range(self.mA)][::-1] for i in range(self.nA)[::-1]]
         elif param == '3':
             self.mtrx_R = [self.mtrx_A[i][::-1] for i in range(self.nA)]
         elif param == '4':
-            self.mtrx_R = []
-            for i in reversed(range(self.nA)):
-                self.mtrx_R.append([self.mtrx_A[i][j] for j in range(self.mA)])
-
+            self.mtrx_R = [[self.mtrx_A[i][j] for j in range(self.mA)] for i in range(self.nA)[::-1]]
+ 
         self.print_result()
 
     def mult(self):
         if self.mA == self.nB:
-            self.mtrx_R = [[0 for j in range(self.mB)] for i in range(self.nA)]
-            for i in range(self.nA):
-                for j in range(self.mB):
-                    self.mtrx_R[i][j] = sum([self.mtrx_A[i][k]*self.mtrx_B[k][j] for k in range(self.nB)])
+            self.mtrx_R = [[sum([self.mtrx_A[i][k]*self.mtrx_B[k][j] for k in range(self.nB)]) for j in range(self.mB)] for i in range(self.nA)]
             self.print_result()
         else:
             print("ERROR")
@@ -105,11 +97,11 @@ class Matrix:
             else:
                 print('Unknown option.')
 
-
-line_1 = '4 5'
-line_2 = ['1 2 3 4 5','3 2 3 2 1','8 0 9 9 1','1 3 4 5 6']
-line_3 = '4 5'
-line_4 = ['1 1 4 4 5','4 4 5 7 8','1 2 3 9 8','1 0 0 0 1']
+#
+# line_1 = '4 5'
+# line_2 = ['1 2 3 4 5','3 2 3 2 1','8 0 9 9 1','1 3 4 5 6']
+# line_3 = '4 5'
+# line_4 = ['1 1 4 4 5','4 4 5 7 8','1 2 3 9 8','1 0 0 0 1']
 
 
 line_1 = '3 3'
@@ -117,11 +109,12 @@ line_2 = ['1 7 7','6 6 4','4 2 1']
 line_3 = '3 3'
 line_4 = ['3 2 4','5 5 9','8 0 10']
 
-#
+
 # fabric = Matrix()
 # fabric.mtrx_A, fabric.nA, fabric.mA = fabric.read_mtrx(line_1, line_2)
 # # fabric.mtrx_B, fabric.nB, fabric.mB = fabric.read_mtrx(line_3, line_4)
-# fabric.transpose('1')
+# # fabric.mult()
+# fabric.transpose('2')
 
 fabric = Matrix()
 fabric.main()
