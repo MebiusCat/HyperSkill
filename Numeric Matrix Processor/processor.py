@@ -55,6 +55,16 @@ class Matrix:
  
         self.print_matrix_result()
 
+    def inverse(self):
+        det = self.calculate_determinant(self.mtrx_A)
+        if det == 0:
+            print("This matrix doesn't have an inverse.")
+            return
+
+        self.mtrx_R = [[round(self.calculate_determinant(self.get_minor(self.mtrx_A, i, j)) / det * (-1) ** (i + j), 4)
+                        for i in range(self.nA)] for j in range(self.mA)]
+        self.print_matrix_result()
+
     def mult(self):
         if self.mA == self.nB:
             self.mtrx_R = [[sum([self.mtrx_A[i][k]*self.mtrx_B[k][j] for k in range(self.nB)]) for j in range(self.mB)] for i in range(self.nA)]
@@ -80,6 +90,7 @@ class Matrix:
                     "3. Multiply matrices",
                     "4. Transpose matrix",
                     "5. Calculate a determinant",
+                    "6. Inverse matrix",
                     "0. Exit"]
             print(*menu, sep='\n')
 
@@ -109,6 +120,9 @@ class Matrix:
                 self.mtrx_A, self.nA, self.mA = self.read_mtrx()
                 det = self.calculate_determinant(self.mtrx_A)
                 print("The result is:", det, sep='\n')
+            elif choice == '6':
+                self.mtrx_A, self.nA, self.mA = self.read_mtrx()
+                self.inverse()
             elif choice == '0':
                 print('Bye!')
                 exit()
@@ -129,6 +143,10 @@ class Matrix:
 # line_3 = '3 3'
 # line_4 = ['3 2 4','5 5 9','8 0 10']
 
+# line_1 = '3 3'
+# line_2 = ['2 -1 0','0 1 2','1 1 0']
+
+
 # fabric = Matrix()
 # fabric.mtrx_A, fabric.nA, fabric.mA = fabric.read_mtrx(line_1, line_2)
 # # fabric.mtrx_B, fabric.nB, fabric.mB = fabric.read_mtrx(line_3, line_4)
@@ -137,7 +155,7 @@ class Matrix:
 
 # fabric = Matrix()
 # fabric.mtrx_A, fabric.nA, fabric.mA = fabric.read_mtrx(line_1, line_2)
-# print(fabric.calculate_determinant(fabric.mtrx_A))
+# print(fabric.inverse())
 
 fabric = Matrix()
 fabric.main()
