@@ -5,6 +5,7 @@ import random as random
 
 class ArithmeticApp:
     """my class"""
+
     def __init__(self):
         """init """
         self.first_number = None
@@ -30,19 +31,32 @@ class ArithmeticApp:
         self.operand = random.choice(self.pool)
 
     def print_example(self):
+        """representation"""
         print(self.first_number, self.operand, self.second_number)
 
     def print_answer(self):
+        """representation"""
         print(self.evaluate_example())
 
     def test_example(self):
         self.generate_example()
         self.print_example()
-        answer = input()
-        if answer != str(self.evaluate_example()):
-            print('Wrong!')
-        else:
-            print('Right!')
+
+        while True:
+            answer_text = input()
+
+            try:
+                answer = int(answer_text)
+
+                if answer_text != str(self.evaluate_example()):
+                    print('Wrong!')
+                    return 0
+                else:
+                    print('Right!')
+                    return 1
+
+            except ValueError:
+                print('Incorrect format.')
 
     def evaluate_example(self) -> int:
         """
@@ -56,6 +70,13 @@ class ArithmeticApp:
         elif self.operand == '*':
             return self.first_number * self.second_number
 
+    def run(self, n):
+        """running full circle"""
+        result = 0
+        for _ in range(n):
+            result += self.test_example()
+        print(f'Your mark is {result}/{n}.')
+
 
 my_app = ArithmeticApp()
-my_app.test_example()
+my_app.run(5)
