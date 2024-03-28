@@ -72,7 +72,7 @@ def cmd_mv():
     fr, to = args
     if not os.path.isfile(fr) and not os.path.isdir(fr):
         return 'No such file or directory'
-    if os.path.isfile(to) or os.path.isdir(to):
+    if os.path.isfile(to) or os.path.isdir(to) and os.path.isdir(fr):
         return 'The file or directory already exists'
     shutil.move(fr, to)
 
