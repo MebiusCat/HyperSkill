@@ -1,135 +1,140 @@
+"""Are you kidding me?"""
+import math
 import os
 import shutil
 
-
-def cd_processing(_user_path, _argument):
-    if _argument == '..':
-        _user_path = os.path.dirname(_user_path)
-        print(os.path.basename(_user_path))
-    else:
-        if os.path.isdir(_argument):
-            _user_path = os.path.abspath(_argument)
-            # print(os.path.basename(_user_path))
-            print(_user_path)
-        elif os.path.isdir(_user_path + '/' + _argument):
-            _user_path = _user_path + '/' + _argument
-            print(_user_path)
-        else:
-            # print(_user_path + '/' + _argument)
-            # print(_user_path, _argument)
-            print('Invalid command')
-    return _user_path
-
-
-def convert_size(size):
-    m_size = size
-    if m_size < 1024:
-        return f'{m_size}B'
-    m_size //= 1024
-    if m_size < 1024:
-        return f'{m_size}KB'
-    m_size //= 1024
-    if m_size < 1024:
-        return f'{m_size}MB'
-    m_size //= 1024
-    return f'{m_size}GB'
-
-
+# determine root directory
 # run the user's program in our generated folders
+# synth perfect
+
 os.chdir('module/root_folder')
 
+
+def cmd_pwd():
+
+    """Print the name of current folder"""
+
+    return os.getcwd()
+
+
+def cmd_cd():
+
+    """Allow change current directory"""
+
+    try:
+        os.chdir(command[3:])
+        return cmd_pwd()
+    except FileNotFoundError:
+        return 'Invalid command'
+
+
+def humanize_size(size):
+
+    """Return size of file in humanreadable format"""
+
+    base = 1024
+    sizes = ['B', 'KB', 'MB', 'GB']
+    deg = int(min(math.log(size, base), 3))
+    return f'{size // base ** deg}{sizes[deg]}'
+
+
+def get_size(st_size, is_file):
+
+    """Return size of file in requested format"""
+
+    if not args or not is_file:
+        return ''
+    if args[0] == '-l':
+        return f' {st_size}'
+    if args[0] == 'lh':
+        return f' {humanize_size(st_size)}'
+    return ''
+
+
+def cmd_ls():
+
+    """Show list of folders/files in requested directory"""
+
+    files: list[os.DirEntry] = list(os.scandir())
+    files.sort(key=lambda x: not x.is_dir())
+    return '\n'.join(
+        file.name + get_size(file.stat().st_size, file.is_file())
+        for file in files
+    )
+
+
+def cmd_mv():
+
+    """Move files or directory to another place"""
+
+    if len(args) != 2:
+        return 'Specify the current name of the file or directory and the new location and/or name'
+    fr, to = args
+    if not os.path.isfile(fr) and not os.path.isdir(fr):
+        return 'No such file or directory'
+    if os.path.isfile(to) or os.path.isdir(to):
+        return 'The file or directory already exists'
+    shutil.move(fr, to)
+
+
+def cmd_mkdir():
+
+    """Create directory"""
+
+    if len(args) != 1:
+        return 'Specify the name of the directory to be made'
+    name = args[0]
+    if os.path.isdir(name):
+        return 'The directory already exists'
+    os.mkdir(name)
+
+
+def cmd_rm():
+
+    """Removing file or directory"""
+
+    if not args:
+        return 'Specify the file or directory'
+    name = args[0]
+    try:
+        if os.path.isfile(name):
+            os.remove(name)
+        else:
+            shutil.rmtree(name)
+    except FileNotFoundError:
+        return 'No such file or directory'
+
+
+def cmd_cp():
+
+    """
+    Copying files or directories
+    """
+
+    if len(args) > 2:
+        return 'Specify the current name of the file or directory and the new location and/or name'
+    elif len(args) != 2:
+        return 'Specify the file'
+    fr, to = args
+    if not os.path.isdir(fr) and not os.path.isfile(fr):
+        return 'No such file or directory'
+    try:
+        shutil.copy(fr, to)
+    except shutil.SameFileError:
+        return f'{fr} already exists in this directory'
+
+
+ACTIONS = {
+    'pwd': cmd_pwd, 'cd': cmd_cd, 'ls': cmd_ls,
+    'mv': cmd_mv, 'mkdir': cmd_mkdir, 'cp': cmd_cp,
+    'rm': cmd_rm,
+}
+
 print('Input the command')
-user_path = os.getcwd()
-while True:
-    user_command = input().split(' ', 1)
-    if user_command[0] == 'pwd':
-        # print("Hi, pwd!")
-        print(user_path)
-    elif user_command[0] == 'mkdir':
-        if len(user_command) == 1:
-            print('Specify the name of the directory to be made')
-            continue
-        try:
-            new_dir = user_command[1]
-            if not os.path.isabs(new_dir):
-                new_dir = user_path + '/' + new_dir
-
-            if os.path.isfile(new_dir) or os.path.isdir(new_dir):
-                print('The directory already exists')
-            else:
-                os.mkdir(new_dir)
-        except:
-            print('No such file or directory')
-    elif user_command[0] == 'mv':
-        if len(user_command) < 2:
-            print('Specify the current name of the file or directory and the new name')
-            continue
-        _argument = user_command[1].split(' ')
-        if len(_argument) < 2:
-            print('Specify the current name of the file or directory and the new name')
-            continue
-        old_path = user_path + '/' + _argument[0]
-        new_path = user_path + '/' + _argument[1]
-        if not os.path.isfile(old_path) and \
-            not os.path.isdir(old_path):
-            print('No such file or directory')
-            continue
-        if os.path.isfile(new_path) or \
-            os.path.isdir(new_path):
-            print('The file or directory already exists')
-            continue
-        shutil.move(old_path, new_path)
-    elif user_command[0] == 'rm':
-        if len(user_command) == 1:
-            print('Specify the file or directory')
-            continue
-        try:
-            rm_path = user_command[1]
-            if not os.path.isabs(user_command[1]):
-                rm_path = user_path + '/' + rm_path
-
-            if os.path.isfile(rm_path):
-                os.remove(rm_path)
-            else:
-                shutil.rmtree(rm_path)
-        except:
-            print('No such file or directory')
-
-    elif user_command[0] == 'cd':
-        try:
-            _command, _argument = user_command[0], user_command[1]
-            user_path = cd_processing(user_path, _argument)
-        except:
-            print('Invalid command')
-    elif user_command[0] == 'ls':
-        ls_arg = None
-        if len(user_command) > 1:
-            ls_arg = user_command[1]
-
-        _list = os.listdir(user_path)
-        sub_dir = []
-        sub_files = []
-        for elem in _list:
-            long_name = user_path + '/' + elem
-            if os.path.isdir(long_name):
-                sub_dir.append(elem)
-            else:
-                sub_files.append(elem)
-
-        for elem in sub_dir:
-            print(elem)
-
-        for elem in sub_files:
-            if ls_arg == '-l':
-                long_name = user_path + '/' + elem
-                print(elem, os.stat(long_name).st_size)
-            elif ls_arg == '-lh':
-                long_name = user_path + '/' + elem
-                print(elem,
-                      convert_size(os.stat(long_name).st_size))
-            else:
-                print(elem)
-    elif user_command[0] == 'quit':
-        break
-    else:
+while (command := input()) != 'quit':
+    cmd, *args = command.split()
+    if cmd not in ACTIONS:
         print('Invalid command')
+    else:
+        if out := ACTIONS.get(cmd)():
+            print(out)
