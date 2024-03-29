@@ -51,6 +51,10 @@ def get_size(st_size, is_file):
     return ''
 
 
+def get_files(ext):
+    return [file for file in list(os.scandir()) if file.path.endswith(ext)]
+
+
 def cmd_ls():
 
     """Show list of folders/files in requested directory"""
@@ -66,12 +70,34 @@ def cmd_ls():
 def cmd_mv():
 
     """Move files or directory to another place"""
-
-    if len(args) != 2:
+    try:
+        fr, to = args
+    except ValueError:
         return 'Specify the current name of the file or directory and the new location and/or name'
-    fr, to = args
-    if not os.path.isfile(fr) and not os.path.isdir(fr):
+
+    if fr.startswith('.'):
+        files = get_files(fr)
+        if not len(files):
+            print(f'File extension {fr} not found in this directory')
+            return
+        else:
+            for x in files:
+                file_to = os.path.join(to, os.path.basename(x))
+                if os.path.exists(file_to):
+                    question = f'{os.path.basename(x)} already exists in this directory. Replace? (y/n) \n'
+                    while ans := input(question) not in ['y', 'n']:
+                        pass
+                    if ans == 'n':
+                        continue
+                    shutil.move(x, file_to)
+                else:
+                    shutil.move(x, file_to)
+            return
+
+
+    if not os.path.exists(fr):
         return 'No such file or directory'
+
     if os.path.isfile(to) or os.path.isdir(to) and os.path.isdir(fr):
         return 'The file or directory already exists'
     shutil.move(fr, to)
@@ -96,6 +122,18 @@ def cmd_rm():
     if not args:
         return 'Specify the file or directory'
     name = args[0]
+
+    if name.startswith('.'):
+        files = get_files(name)
+        # files.sort(key=lambda x: x.path.endswith(name))
+        if not len(files):
+            print(f'File extension {name} not found in this directory')
+            return
+        else:
+            for x in files:
+                os.remove(x)
+            return
+
     try:
         if os.path.isfile(name):
             os.remove(name)
@@ -116,7 +154,27 @@ def cmd_cp():
     elif len(args) != 2:
         return 'Specify the file'
     fr, to = args
-    if not os.path.isdir(fr) and not os.path.isfile(fr):
+
+    if fr.startswith('.'):
+        files = get_files(fr)
+        if not len(files):
+            print(f'File extension {fr} not found in this directory')
+            return
+        else:
+            for x in files:
+                file_to = os.path.join(to, os.path.basename(x))
+                if os.path.exists(file_to):
+                    question = f'{os.path.basename(x)} already exists in this directory. Replace? (y/n) \n'
+                    while ans := input(question) not in ['y', 'n']:
+                        pass
+                    if ans == 'n':
+                        continue
+                    shutil.copy(x, file_to)
+                else:
+                    shutil.copy(x, file_to)
+            return
+
+    if not os.path.exists(fr):
         return 'No such file or directory'
     try:
         shutil.copy(fr, to)
