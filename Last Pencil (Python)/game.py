@@ -4,23 +4,10 @@ class Pencil:
     def __init__(self):
         self.player_1 = 'John'
         self.player_2 = 'Jack'
-        self.size = 0
+        self.size: int = self._set_pencils()
         self.turn = {'John': self.player_play, 'Jack': self.bot}
         self.side = {True: self.player_1, False: self.player_2}
         self.human_start = True
-
-        pencil_str = 'How many pencils would you like to use: '
-        print(pencil_str)
-        while self.size <= 0:
-            _size = input()
-            try:
-                self.size = int(_size)
-                if self.size == 0:
-                    print('The number of pencils should be positive')
-                elif self.size < 0:
-                    print('The number of pencils should be numeric (the minus sign is not a numeric)')
-            except ValueError:
-                print('The number of pencils should be numeric')
 
         player_str = 'Who will be the first (John, Jack): '
         self.player = input(player_str)
@@ -31,6 +18,20 @@ class Pencil:
 
         if self.player == self.player_2:
             self.human_start = False
+
+    def _set_pencils(self) -> int:
+        pencils: str = input('How many pencils would you like to use: ')
+
+        while not pencils.isnumeric() and (int(pencils) > 0):
+            if int(pencils) == 0:
+                print('The number of pencils should be positive')
+            elif int(pencils) < 0:
+                print('The number of pencils should be numeric (the minus sign is not a numeric)')
+            else:
+                print('The number of pencils should be numeric')
+            pencils = input()
+
+        return int(pencils)
 
     def play(self):
         player_turn = self.human_start
