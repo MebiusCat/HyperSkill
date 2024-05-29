@@ -4,7 +4,11 @@ class Player:
         self.domino = []
 
     def __str__(self):
-        return f'{self.name} pieces: [{", ".join(str(domino) for domino in self.domino)}]'
+        # return f'{self.name} pieces: [{", ".join(str(domino) for domino in self.domino)}]'
+        return '\n'.join(f"{k + 1}:{str(domino)}" for k, domino in enumerate(self.domino))
+
+    def __len__(self):
+        return len(self.domino)
 
     def add_domino(self, x):
         self.domino.append(x)
@@ -24,3 +28,4 @@ class Player:
         for k, elem in enumerate(self.domino):
             if elem == x:
                 return k
+

@@ -11,3 +11,6 @@ class Stock:
 
     def pop_domino(self, idx):
         return self.domino.pop(idx)
+
+    def __len__(self):
+        return len(self.domino)

@@ -17,6 +17,22 @@ class Field:
     def __str__(self):
         return f'{self.name} [{", ".join(str(domino) for domino in self.snake)}]'
 
+    def display_header(self):
+        print("=" * 70)
+        print(f"Stock size: {len(self.stock)}")
+
+        player = self.players[1]
+        computer = self.players[0]
+
+        print(f"Computer pieces: {len(computer)}")
+        print(f"\n{', '.join(str(domino) for domino in self.snake)}\n")
+        print("Your pieces:")
+        print(player)
+        if self.status:
+            print("\nStatus: Computer is about to make a move. Press Enter to continue...")
+        else:
+            print("\nStatus: It's your turn to make a move. Enter your command.")
+
     def add_domino(self, x):
         self.stock.append(x)
 
