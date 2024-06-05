@@ -6,6 +6,8 @@ class Domino:
     def __str__(self):
         return f"[{self.a}, {self.b}]"
 
+    def reversed(self):
+        return Domino(self.b, self.a)
     def is_double(self):
         return self.a == self.b
 

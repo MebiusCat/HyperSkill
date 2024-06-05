@@ -15,7 +15,7 @@ class Field:
         self.stock = Stock()
 
     def __str__(self):
-        s = self.snake.dominos
+        s = self.snake.dominoes
         return ''.join(map(str, s[:3] + ['...'] + s[-3:]) if len(s) >= 7 else ''.join(map(str, s)))
 
     def generate(self, player_names):
