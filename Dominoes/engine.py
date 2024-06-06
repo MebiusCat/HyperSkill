@@ -26,6 +26,7 @@ class Engine:
         self.report()
 
     def valid_move(self, move):
+        """ Check if planning move is correct. """
 
         if move == 0:
             return True
@@ -47,7 +48,6 @@ class Engine:
 
         return valid
 
-
     def make_move(self):
         """ Make a move for the current player. """
 
@@ -58,7 +58,8 @@ class Engine:
         move = None
         while not self.valid_move(move):
             if current_player.is_computer():
-                move = self.random_move(current_player.size())
+                # move = self.random_move(current_player.size())
+                move = self.get_move_ai()
             else:
                 move = self.get_move(current_player.size())
         self.transfer(move)
@@ -82,6 +83,24 @@ class Engine:
         elif self.field.stock.size():
             player.add_domino(self.field.stock.pop_domino())
 
+    def get_move_ai(self) -> int:
+        """ Make a turn as a player """
+        player = self.field.players[self.field.status]
+
+        rating = {x: 0 for x in range(7)}
+        for domino in self.field.snake.dominoes + player.dominoes:
+            rating[domino.a] += 1
+            rating[domino.b] += 1
+
+        for domino in sorted(player.dominoes, key=lambda x: rating[x.a] + rating[x.b], reverse=True):
+            move = player.find_domino(domino) + 1
+            side = random.choice([-1, 1])
+            if self.valid_move(move * side):
+                return move * side
+            if self.valid_move(-move * side):
+                return -move * side
+        return 0
+
     @staticmethod
     def get_move(size) -> int:
         """ Make a turn as a player """
@@ -103,6 +122,9 @@ class Engine:
         for player in self.field.players:
             if player.size() == 0:
                 return True
+
+        if not self.field.stock:
+            return True
 
         snake = self.field.snake
 
