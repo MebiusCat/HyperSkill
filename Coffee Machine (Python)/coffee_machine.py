@@ -21,6 +21,7 @@ class CoffeeMaker:
         self.money = 550
 
     def menu(self):
+        self.load_recipes()
 
         while True:
             choice = input(f'Write action (buy, fill, take):\n')
@@ -142,5 +143,4 @@ class CoffeeMaker:
 
 if __name__ == "__main__":
     barista = CoffeeMaker()
-    barista.load_recipes()
     barista.menu()
