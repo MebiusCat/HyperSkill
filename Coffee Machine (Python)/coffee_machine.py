@@ -22,18 +22,19 @@ class CoffeeMaker:
 
     def menu(self):
 
-        # while True:
-        self.machine_status()
-        choice = input(f'Write action (buy, fill, take):\n')
-        if choice == 'buy':
-            self.make_a_coffee()
-        elif choice == 'fill':
-            self.stock_up()
-        elif choice == 'take':
-            self.encashment()
-        # else:
-            # break
-        self.machine_status()
+        while True:
+            choice = input(f'Write action (buy, fill, take):\n')
+            if choice == 'buy':
+                self.make_a_coffee()
+            elif choice == 'fill':
+                self.stock_up()
+            elif choice == 'take':
+                self.encashment()
+            elif choice == 'remaining':
+                self.machine_status()
+            else:
+                break
+
 
     def encashment(self):
         print(f'I gave you ${self.money}\n')
@@ -41,7 +42,13 @@ class CoffeeMaker:
 
     def make_a_coffee(self):
         menu = 'What do you want to buy? 1 - espresso, 2 - latte, 3 - cappuccino:'
-        position = int(input(menu))
+
+        position = input(menu)
+
+        if position == 'back':
+            return
+
+        position = int(position)
 
         if position not in range(len(self.recipes) + 1):
             print("Wrong coffee type")
@@ -51,6 +58,7 @@ class CoffeeMaker:
 
         if self.check_supply(
                 cur_coffee.water, cur_coffee.milk, cur_coffee.beans, 1):
+            print('I have enough resources, making you a coffee!')
             self.water_stock -= cur_coffee.water
             self.milk_stock -= cur_coffee.milk
             self.bean_stock -= cur_coffee.beans
@@ -90,9 +98,21 @@ class CoffeeMaker:
 
     def check_supply(self, water, milk, beans, cups):
 
-        return (self.water_stock >= water * cups
-                and self.bean_stock >= beans * cups
-                and self.milk_stock >= milk * cups)
+        out_of = []
+
+        if self.water_stock < water * cups:
+            out_of.append('water')
+
+        if self.milk_stock < milk * cups:
+            out_of.append('milk')
+
+        if self.bean_stock < beans * cups:
+            out_of.append('coffee beans')
+
+        if out_of:
+            print('Sorry, not enough', ','.join(w for w in out_of), '!')
+
+        return len(out_of) == 0
 
 
     def order_reservation(self, water, milk, bean):
