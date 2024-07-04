@@ -1,88 +1,102 @@
-"""Compose a binary string"""
-
-CHAR_LIMIT = 100
-
-from random import choice
-
-def char_validation(char):
-    if char not in '01':
-        return ''
-    return char
+""" Next symbol prediction """
 
 
-def update_text(_text, _input):
-    for char in _input:
-        if char_validation(char):
-            _text += char
-    return _text
+class Randomness:
+    """ Class for emulation AI by statistics """
+
+    TRAIN_LIMIT = 100
+    TEST_LIMIT = 4
+    DATA_VALUES = '01'
+    TRAIN_PROMPT = 'Print a random string containing 0 or 1:\n'
+    TEST_PROMPT = 'Please enter a test string containing 0 or 1:\n'
+    WARN_PROMPT = 'some wrong input\n'
+
+    def __init__(self):
+        self.training_data: str = ''
+        self.prediction_data: str = ''
+        self.triads: dict[str, list[int]] = {f'{t:03b}': [0, 0] for t in range(8)}
+        self.balance: int = 1000
+
+    def play(self):
+        """Game process """
+        print('Please provide AI some data to learn...',
+              'The current data length is 0, 100 symbols left\n', sep='\n')
+
+        self.load('train')
+        self.data_process()
+
+        print('\nYou have $1000. Every time the system successfully predicts your next press, you lose $1.',
+              'Otherwise, you earn $1. Print "enough" to leave the game. Let\'s go!\n', sep='\n')
+
+        while (inp := input(self.TRAIN_PROMPT)) != 'enough':
+            if self.valid_test(inp):
+                self.make_prediction()
+        else:
+            print('Game over!')
+
+    def data_process(self) -> None:
+        """Making triads from user's input"""
+        for i in range(len(self.training_data) - 3):
+            triplet, follow = self.training_data[i: i + 3], int(self.training_data[i + 3])
+            self.triads[triplet][follow] += 1
+
+    def make_prediction(self) -> None:
+        """Making prediction based on user's input"""
+        prediction: list[str] = []
+        correct: int = 0
+        total: int = len(self.prediction_data) - 3
+
+        for idx in range(len(self.prediction_data) - 3):
+            triplet = self.prediction_data[idx: idx + 3]
+            zeros, ones = self.triads[triplet]
+            predicted_value = self.DATA_VALUES[zeros < ones]
+            prediction.append(predicted_value)
+            if predicted_value == self.prediction_data[idx + 3]:
+                correct += 1
+
+        print('predictions:', ''.join(prediction))
+        print(f'\nComputer guessed {correct} out of {total} symbols right ({correct / total * 100:.2f} %)')
+
+        self.balance += total - 2 * correct
+        print(f'Your balance is now ${self.balance}')
+
+    def load(self, mode: str) -> None:
+        """Data initialization
+            mode: switching between train | test mode
+        """
+
+        if mode == 'train':
+            self.training_data = self.read([], self.TRAIN_PROMPT, self.TRAIN_LIMIT)
+            print('\nFinal data string:')
+            print(self.training_data)
+        elif mode == 'test':
+            self.prediction_data = self.read([], self.TEST_PROMPT, self.TEST_LIMIT)
+        else:
+            raise ValueError('Incorrect value - please choose from [train|test]')
+
+    def read(self, data: list[str], prompt, size):
+        """Process user's input"""
+        while len(data) < size:
+            inp: str = input(prompt)
+            data.extend(filter(self.DATA_VALUES.__contains__, inp))
+
+            if len(data) < size:
+                print(f'Current data length is {len(data)}, {size - len(data)} symbols left')
+
+        return ''.join(data)
+
+    def valid_test(self, inp: str) -> bool:
+        """Process user's input"""
+        data = list(filter(self.DATA_VALUES.__contains__, inp))
+
+        if len(data) < len(inp) or len(data) < self.TEST_LIMIT:
+            print(self.WARN_PROMPT)
+            return False
+
+        self.prediction_data = ''.join(data)
+        return True
 
 
-def text_validation(_text):
-    count_symbols = len(_text)
-
-    if count_symbols < CHAR_LIMIT:
-        print(f'Current data length is {count_symbols}, {CHAR_LIMIT - count_symbols} symbols left')
-
-    return len(_text) >= CHAR_LIMIT
-
-
-def count_triplets(data):
-
-    triads = dict()
-
-    for i in range(len(data) - 3):
-        triplet, follow = data[i: i + 3], data[i + 3]
-        if triplet not in triads:
-            triads[triplet] = dict.fromkeys(['0', '1'], 0)
-        triads[triplet][follow] += 1
-    return triads
-
-
-def predict(triplet, frequency):
-    if triplet not in frequency:
-        return choice(['0', '1'])
-    left, right = frequency[triplet].items()
-    if left[1] == right[1]:
-        return choice(['0', '1'])
-    elif left[1] > right[1]:
-        return left[0]
-    else:
-        return right[0]
-
-
-def make_prediction(sample, frequency):
-    res = ''
-    for i in range(len(sample) - 3):
-        res += predict(sample[i: i + 3], frequency)
-    return res
-
-
-def accuracy(sample, prediction):
-    acc = [prediction[i] == sample[i + 3] for i in range(len(prediction))]
-
-    return sum(acc), len(prediction), round(sum(acc) / len(sample) * 100, 2)
-
-
-text = ''
-while True:
-    print('Print a random string containing 0 or 1:')
-    user_str = input()
-    text = update_text(text, user_str)
-    if text_validation(text):
-        break
-
-print('Final data string:', text, '\n')
-
-statistic = count_triplets(text)
-
-test_str = ''
-while len(test_str) < 4:
-    print('Please enter a test string containing 0 or 1:')
-    test_str = input()
-
-prediction = make_prediction(test_str, statistic)
-print('predictions:', prediction)
-
-acc_score = accuracy(test_str, prediction)
-print(f'Computer guessed {acc_score[0]} out of {acc_score[1]}'
-      f' symbols right ({acc_score[2]} %)')
+if __name__ == '__main__':
+    model = Randomness()
+    model.play()
