@@ -78,6 +78,13 @@ class CustomKMeans:
             new_centers.append(X[labels == label].mean(axis=0))
         return np.array(new_centers)
 
+    def inertia(self, X, labels, n_clusters):
+
+        return np.sum(
+            [np.sum(
+                np.linalg.norm(X[label == labels] - self.centers[label], axis=1) ** 2) for label in range(n_clusters)])
+
+
 
 if __name__ == '__main__':
 
@@ -99,8 +106,15 @@ if __name__ == '__main__':
     scaler = StandardScaler()
     X_full = scaler.fit_transform(X_full)
 
-    model = CustomKMeans(k=2)
-    model.fit(X_full)
+    inertia_calc = []
+    for n_k in range(2, 10 + 1):
+        model = CustomKMeans(k=n_k)
+        model.fit(X_full)
 
-    y_pred = model.predict(X_full)[:10].tolist()
-    print(y_pred)
+        y_pred = model.predict(X_full)
+        inertia_calc.append(model.inertia(X_full, y_pred, n_k))
+
+    print(np.array(inertia_calc).tolist())
+
+    # plt.plot(list(range(2, 11)), inertia_calc)
+    # plt.show()
