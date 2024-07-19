@@ -84,6 +84,18 @@ class CustomKMeans:
             [np.sum(
                 np.linalg.norm(X[label == labels] - self.centers[label], axis=1) ** 2) for label in range(n_clusters)])
 
+    @staticmethod
+    def search_k_value(X_full):
+        for n_k in range(2, 10 + 1):
+            model = CustomKMeans(k=n_k)
+            model.fit(X_full)
+
+            y_pred = model.predict(X_full)
+            inertia_data.append(model.inertia(X_full, y_pred, n_k))
+            silhouette_data.append(silhouette_score(X_full, y_pred))
+
+        # print(np.array(silhouette_data).tolist())
+        return list(range(2, 10 + 1))[np.argmax(silhouette_data)]
 
 
 if __name__ == '__main__':
@@ -109,15 +121,12 @@ if __name__ == '__main__':
     inertia_data = []
     silhouette_data = []
 
-    for n_k in range(2, 10 + 1):
-        model = CustomKMeans(k=n_k)
-        model.fit(X_full)
+    best_k = CustomKMeans.search_k_value(X_full)
 
-        y_pred = model.predict(X_full)
-        inertia_data.append(model.inertia(X_full, y_pred, n_k))
-        silhouette_data.append(silhouette_score(X_full, y_pred))
+    model = CustomKMeans(best_k)
+    model.fit(X_full)
 
-    print(np.array(silhouette_data).tolist())
+    y_pred = model.predict(X_full)
+    # plot_comparison(X_full, y_pred, y_full, model.centers)
 
-    # plt.plot(list(range(2, 11)), silhouette_data)
-    # plt.show()
+    print(np.array(y_pred[:20]).tolist())
