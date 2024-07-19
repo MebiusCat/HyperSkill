@@ -3,6 +3,7 @@ from sklearn.datasets import load_wine
 from matplotlib import pyplot as plt
 import seaborn as sns
 from sklearn.preprocessing import StandardScaler
+from sklearn.metrics import silhouette_score
 
 # scroll down to the bottom to implement your solution
 
@@ -79,7 +80,6 @@ class CustomKMeans:
         return np.array(new_centers)
 
     def inertia(self, X, labels, n_clusters):
-
         return np.sum(
             [np.sum(
                 np.linalg.norm(X[label == labels] - self.centers[label], axis=1) ** 2) for label in range(n_clusters)])
@@ -106,15 +106,18 @@ if __name__ == '__main__':
     scaler = StandardScaler()
     X_full = scaler.fit_transform(X_full)
 
-    inertia_calc = []
+    inertia_data = []
+    silhouette_data = []
+
     for n_k in range(2, 10 + 1):
         model = CustomKMeans(k=n_k)
         model.fit(X_full)
 
         y_pred = model.predict(X_full)
-        inertia_calc.append(model.inertia(X_full, y_pred, n_k))
+        inertia_data.append(model.inertia(X_full, y_pred, n_k))
+        silhouette_data.append(silhouette_score(X_full, y_pred))
 
-    print(np.array(inertia_calc).tolist())
+    print(np.array(silhouette_data).tolist())
 
-    # plt.plot(list(range(2, 11)), inertia_calc)
+    # plt.plot(list(range(2, 11)), silhouette_data)
     # plt.show()
