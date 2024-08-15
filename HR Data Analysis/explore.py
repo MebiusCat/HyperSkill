@@ -4,6 +4,9 @@ import os
 
 # scroll down to the bottom to implement your solution
 
+def count_bigger_5(series):
+    return sum(series > 5)
+
 if __name__ == '__main__':
 
     if not os.path.exists('../Data'):
@@ -61,16 +64,31 @@ if __name__ == '__main__':
     # STAGE 3
     # What are the departments of the top ten employees in terms of working hours?
     top_hours = df_HR_office.sort_values("average_monthly_hours", ascending=False).head(10)['Department'].tolist()
-    print(top_hours)
+    # print(top_hours)
 
     # What is the total number of projects on which IT department employees with low salaries have worked?
     total_low_IT_project = df_HR_office[(df_HR_office.Department == 'IT') & (df_HR_office.salary == 'low')].number_project.sum()
-    print(total_low_IT_project)
+    # print(total_low_IT_project)
 
     # What are the last evaluation scores and the satisfaction levels of the employees A4, B7064, and A3033?
     eval_score = df_HR_office.loc[['A4', 'B7064', 'A3033']][['last_evaluation', 'satisfaction_level']].values.tolist()
-    print(eval_score)
+    # print(eval_score)
 
+    # STAGE 4
+    # the median number of projects the employees in a group worked on, and how many employees worked on more than five projects;
+    # the mean and median time spent in the company;
+    # the share of employees who've had work accidents;
+    # the mean and standard deviation of the last evaluation score.
 
+    boss_request = (df_HR_office
+                        .groupby(['left'])
+                        .agg(
+                            {'number_project': ['median', count_bigger_5],
+                             'time_spend_company': ['mean', 'median'],
+                             'Work_accident': 'mean',
+                             'last_evaluation': ['mean', 'std']
+                              }).round(2).to_dict())
+
+    print(boss_request)
 
 
