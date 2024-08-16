@@ -89,6 +89,36 @@ if __name__ == '__main__':
                              'last_evaluation': ['mean', 'std']
                               }).round(2).to_dict())
 
-    print(boss_request)
+    # print(boss_request)
 
+    # STAGE 5
+    # Table 1
+    work_hours_stay = df_HR_office\
+        .query('left == 0')\
+        .pivot_table(index='Department',
+                     columns='salary',
+                     values='average_monthly_hours', aggfunc='median')\
+        .query('high < medium').index.values
 
+    work_hours_left = df_HR_office\
+        .query('left == 1')\
+        .pivot_table(index='Department',
+                     columns='salary',
+                     values='average_monthly_hours', aggfunc='median')\
+        .query('low < high').index.values
+
+    dep_filter = 'Department.isin(@work_hours_stay) | Department.isin(@work_hours_left)'
+    print(df_HR_office.query(dep_filter).\
+          pivot_table(index='Department',
+                      columns=['left', 'salary'],
+                      values='average_monthly_hours',
+                      aggfunc='median')\
+          .round(2).to_dict())
+
+    # Table 2
+    df_score = df_HR_office.\
+          pivot_table(index='time_spend_company',
+                      columns='promotion_last_5years',
+                      values=['last_evaluation','satisfaction_level'],
+                      aggfunc=['max', 'mean', 'min'])
+    print(df_score[df_score[('mean','last_evaluation',0)] > df_score[('mean','last_evaluation',1)]].round(2).to_dict())
