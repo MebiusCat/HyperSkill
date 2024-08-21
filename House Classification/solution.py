@@ -9,6 +9,10 @@ from sklearn.preprocessing import OneHotEncoder
 from sklearn.tree import DecisionTreeClassifier
 
 from sklearn.preprocessing import OrdinalEncoder
+from category_encoders import TargetEncoder
+
+import warnings
+warnings.filterwarnings('ignore')
 
 def review_dataset(house_df):
     # How many rows does the DataFrame have?
@@ -49,7 +53,7 @@ if __name__ == '__main__':
 
     # Stage 3 One-hot encoder
     enc = OneHotEncoder(drop='first')
-    enc.fit(X[['Zip_area', 'Zip_loc', 'Room']])
+    enc.fit(X_train[['Zip_area', 'Zip_loc', 'Room']])
     X_train_transformed = pd.DataFrame(
         enc.transform(X_train[['Zip_area', 'Zip_loc', 'Room']]).toarray(),
         index=X_train.index)
@@ -77,7 +81,7 @@ if __name__ == '__main__':
 
     # Stage 4 Ordinal encoder
     enc_ord = OrdinalEncoder()
-    enc_ord.fit(X[['Zip_area', 'Zip_loc', 'Room']])
+    enc_ord.fit(X_train[['Zip_area', 'Zip_loc', 'Room']])
     X_train_ord_transformed = pd.DataFrame(
         enc_ord.transform(X_train[['Zip_area', 'Zip_loc', 'Room']]),
         index=X_train.index
@@ -102,4 +106,32 @@ if __name__ == '__main__':
     model.fit(X_train_ord_final, y_train)
 
     y_pred = model.predict(X_test_ord_final)
+    # print(accuracy_score(y_test, y_pred))
+
+    # Stage 5 Target encoder
+    enc_tar = TargetEncoder(cols=['Zip_area', 'Room', 'Zip_loc'])
+    enc_tar.fit(X_train[['Zip_area', 'Room', 'Zip_loc']], y_train)
+    X_train_tar_transformed = pd.DataFrame(
+        enc_tar.transform(X_train[['Zip_area', 'Room', 'Zip_loc']]),
+        index=X_train.index
+    )
+
+    X_train_tar_final = X_train[['Area', 'Lon', 'Lat']].join(X_train_tar_transformed)
+
+    X_test_tar_transformed = pd.DataFrame(
+        enc_tar.transform(X_test[['Zip_area', 'Room', 'Zip_loc']]),
+        index=X_test.index)
+    X_test_tar_final = X_test[['Area', 'Lon', 'Lat']].join(X_test_tar_transformed)
+
+    model = DecisionTreeClassifier(
+        criterion='entropy',
+        max_features=3,
+        splitter='best',
+        max_depth=6,
+        min_samples_split=4,
+        random_state=3)
+
+    model.fit(X_train_tar_final, y_train)
+
+    y_pred = model.predict(X_test_tar_final)
     print(accuracy_score(y_test, y_pred))
