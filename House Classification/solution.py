@@ -8,6 +8,7 @@ from sklearn.metrics import accuracy_score
 from sklearn.preprocessing import OneHotEncoder
 from sklearn.tree import DecisionTreeClassifier
 
+from sklearn.preprocessing import OrdinalEncoder
 
 def review_dataset(house_df):
     # How many rows does the DataFrame have?
@@ -46,7 +47,7 @@ if __name__ == '__main__':
                          random_state=1, test_size=0.3, stratify=df['Zip_loc'].values))
     # print(X_train.Zip_loc.value_counts().to_dict())
 
-    # Stage 3
+    # Stage 3 One-hot encoder
     enc = OneHotEncoder(drop='first')
     enc.fit(X[['Zip_area', 'Zip_loc', 'Room']])
     X_train_transformed = pd.DataFrame(
@@ -72,4 +73,33 @@ if __name__ == '__main__':
     model.fit(X_train_final, y_train)
 
     y_pred = model.predict(X_test_final)
+    # print(accuracy_score(y_test, y_pred))
+
+    # Stage 4 Ordinal encoder
+    enc_ord = OrdinalEncoder()
+    enc_ord.fit(X[['Zip_area', 'Zip_loc', 'Room']])
+    X_train_ord_transformed = pd.DataFrame(
+        enc_ord.transform(X_train[['Zip_area', 'Zip_loc', 'Room']]),
+        index=X_train.index
+    )
+    X_train_ord_final = X_train[['Area', 'Lon', 'Lat']].join(X_train_ord_transformed)
+    X_train_ord_final.rename(columns=str, inplace=True)
+
+    X_test_ord_transformed = pd.DataFrame(
+        enc_ord.transform(X_test[['Zip_area', 'Zip_loc', 'Room']]),
+        index=X_test.index)
+    X_test_ord_final = X_test[['Area', 'Lon', 'Lat']].join(X_test_ord_transformed)
+    X_test_ord_final.rename(columns=str, inplace=True)
+
+    model = DecisionTreeClassifier(
+        criterion='entropy',
+        max_features=3,
+        splitter='best',
+        max_depth=6,
+        min_samples_split=4,
+        random_state=3)
+
+    model.fit(X_train_ord_final, y_train)
+
+    y_pred = model.predict(X_test_ord_final)
     print(accuracy_score(y_test, y_pred))
