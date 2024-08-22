@@ -3,13 +3,13 @@ import requests
 import sys
 import pandas as pd
 
+from category_encoders import TargetEncoder
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import accuracy_score
+from sklearn.metrics import classification_report
 from sklearn.preprocessing import OneHotEncoder
-from sklearn.tree import DecisionTreeClassifier
-
 from sklearn.preprocessing import OrdinalEncoder
-from category_encoders import TargetEncoder
+from sklearn.tree import DecisionTreeClassifier
 
 import warnings
 warnings.filterwarnings('ignore')
@@ -77,6 +77,7 @@ if __name__ == '__main__':
     model.fit(X_train_final, y_train)
 
     y_pred = model.predict(X_test_final)
+    f1_ohe = round(classification_report(y_pred, y_test, output_dict=True)['macro avg']['f1-score'], 2)
     # print(accuracy_score(y_test, y_pred))
 
     # Stage 4 Ordinal encoder
@@ -106,6 +107,7 @@ if __name__ == '__main__':
     model.fit(X_train_ord_final, y_train)
 
     y_pred = model.predict(X_test_ord_final)
+    f1_ord = round(classification_report(y_pred, y_test, output_dict=True)['macro avg']['f1-score'], 2)
     # print(accuracy_score(y_test, y_pred))
 
     # Stage 5 Target encoder
@@ -134,4 +136,10 @@ if __name__ == '__main__':
     model.fit(X_train_tar_final, y_train)
 
     y_pred = model.predict(X_test_tar_final)
-    print(accuracy_score(y_test, y_pred))
+    f1_target = round(classification_report(y_pred, y_test, output_dict=True)['macro avg']['f1-score'], 2)
+    # print(accuracy_score(y_test, y_pred))
+
+    # Stage 6
+    print(f'OneHotEncoder:{f1_ohe}')
+    print(f'OrdinalEncoder:{f1_ord}')
+    print(f'TargetEncoder:{f1_target}')
