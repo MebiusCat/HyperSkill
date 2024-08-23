@@ -17,6 +17,9 @@ def convert_embarked(x):
     else:
         return 2
 
+def create_bootstrap(features, labels):
+    mask = np.random.choice(len(labels), size=len(labels))
+    return features[mask], labels[mask]
 
 if __name__ == '__main__':
     data = pd.read_csv('https://www.dropbox.com/s/4vu5j6ahk2j3ypk/titanic_train.csv?dl=1')
@@ -38,9 +41,14 @@ if __name__ == '__main__':
     X_train, X_val, y_train, y_val = \
         train_test_split(X.values, y.values, stratify=y, train_size=0.8)
 
-    # Make your code here...
-    model = DecisionTreeClassifier()
-    model.fit(X_train, y_train)
+    # Stage 1
+    # Make some tree...
+    # model = DecisionTreeClassifier()
+    # model.fit(X_train, y_train)
+    #
+    # y_pred = model.predict(X_val)
+    # print(f'{accuracy_score(y_pred, y_val):.3f}')
 
-    y_pred = model.predict(X_val)
-    print(round(accuracy_score(y_pred, y_val), 3))
+    # Stage 2
+    X_sub, y_sub = create_bootstrap(X_train, y_train)
+    print(y_sub[:10].tolist())
