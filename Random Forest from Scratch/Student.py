@@ -53,7 +53,7 @@ class RandomForestClassifier():
         for r_tree in self.forest:
             result.append(r_tree.predict(X_test))
 
-        return pd.DataFrame(np.array(result)).mode().iloc[0].values
+        return pd.DataFrame(np.array(result)).mode().values[0]
 
 
 if __name__ == '__main__':
@@ -94,4 +94,7 @@ if __name__ == '__main__':
 
     # Stage 4
     y_pred = model.predict(X_val)
-    print(y_pred[:10].astype(int).tolist())
+    # print(y_pred[:10].astype(int).tolist())
+
+    # Stage 5
+    print(round(accuracy_score(y_pred, y_val), 3))
