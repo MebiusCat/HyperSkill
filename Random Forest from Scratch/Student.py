@@ -44,13 +44,16 @@ class RandomForestClassifier():
 
         self.is_fit = True
 
-    def predict(self, X_test, y_test):
+    def predict(self, X_test):
 
         if not self.is_fit:
             raise AttributeError('The forest is not fit yet! Consider calling .fit() method.')
 
-        y_pred = self.forest[0].predict(X_test)
-        print(f'{accuracy_score(y_pred, y_test):.3}')
+        result = []
+        for r_tree in self.forest:
+            result.append(r_tree.predict(X_test))
+
+        return pd.DataFrame(np.array(result)).mode().iloc[0].values
 
 
 if __name__ == '__main__':
@@ -88,4 +91,7 @@ if __name__ == '__main__':
     # Stage 3
     model = RandomForestClassifier()
     model.fit(X_train, y_train)
-    model.predict(X_val, y_val)
+
+    # Stage 4
+    y_pred = model.predict(X_val)
+    print(y_pred[:10].astype(int).tolist())
