@@ -1,5 +1,6 @@
 import numpy as np
 import pandas as pd
+import matplotlib.pyplot as plt
 
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import accuracy_score
@@ -34,7 +35,7 @@ class RandomForestClassifier():
 
     def fit(self, X_train, y_train):
 
-        for _ in tqdm(range(self.n_trees)):
+        for _ in range(self.n_trees):
             new_tree = DecisionTreeClassifier(
                 max_features='sqrt',
                 max_depth=self.max_depth,
@@ -89,12 +90,28 @@ if __name__ == '__main__':
     # print(y_sub[:10].tolist())
 
     # Stage 3
-    model = RandomForestClassifier()
-    model.fit(X_train, y_train)
+    # model = RandomForestClassifier()
+    # model.fit(X_train, y_train)
 
     # Stage 4
-    y_pred = model.predict(X_val)
+    # y_pred = model.predict(X_val)
     # print(y_pred[:10].astype(int).tolist())
 
     # Stage 5
-    print(round(accuracy_score(y_pred, y_val), 3))
+    # print(round(accuracy_score(y_pred, y_val), 3))
+
+    # Stage 6
+    result = []
+    for nn in range(1, 600):
+        model = RandomForestClassifier(n_trees=nn)
+        model.fit(X_train, y_train)
+        y_pred = model.predict(X_val)
+        result.append(round(accuracy_score(y_pred, y_val), 3))
+
+    print(result[:20])
+
+    # fig, ax = plt.subplots(figsize=(15, 10))
+    # plt.plot(list(range(1, 600)), result)
+    # ax.grid()
+    # plt.show()
+
