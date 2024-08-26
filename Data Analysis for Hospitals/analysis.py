@@ -10,6 +10,12 @@ if __name__ == '__main__':
     df_prenatal = pd.read_csv('test/prenatal.csv')
     df_sport = pd.read_csv('test/sports.csv')
 
+    # Stage 1
+    # print(df_general.head(20))
+    # print(df_prenatal.head(20))
+    # print(df_sport.head(20))
+
+    # Stage 2
     df_prenatal.columns = df_general.columns
     df_sport.columns = df_general.columns
 
