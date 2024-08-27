@@ -23,5 +23,16 @@ if __name__ == '__main__':
         [df_general, df_prenatal, df_sport], ignore_index=True)
 
     df.drop(columns=['Unnamed: 0'], inplace=True)
-    print(df.sample(20))
+    # print(df.sample(20))
 
+    # Stage 3
+    df.dropna(thresh=1, inplace=True)
+    df.gender = df.gender.apply(lambda x: 'm' if x in ['man', 'male'] else 'f')
+
+    nan_col = ['bmi', 'diagnosis', 'blood_test',
+               'ecg', 'ultrasound', 'mri',
+               'xray', 'children', 'months']
+    df[nan_col] = df[nan_col].apply(lambda x: x.fillna(0))
+
+    print(df.shape)
+    print(df.sample(20))
