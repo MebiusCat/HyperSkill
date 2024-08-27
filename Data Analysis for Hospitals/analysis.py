@@ -34,5 +34,43 @@ if __name__ == '__main__':
                'xray', 'children', 'months']
     df[nan_col] = df[nan_col].apply(lambda x: x.fillna(0))
 
-    print(df.shape)
-    print(df.sample(20))
+    # print(df.shape)
+    # print(df.sample(20))
+
+    # Stage 4
+    # 1. Which hospital has the highest number of patients?
+    max_patients = (df.groupby('hospital')
+                    .agg({'gender': 'count'})
+                    .sort_values('gender', ascending=False).iloc[0].name)
+
+    print(f'The answer to the 1st question is {max_patients}')
+
+    # 2. What share of the patients in the general hospital suffers from stomach-related issues?
+    stomach_share = (df[(df.hospital == 'general') &
+                        (df.diagnosis == 'stomach')].shape[0] /
+                     df[df.hospital == 'general'].shape[0])
+
+    print(f'The answer to the 2nd question is {stomach_share:.3}')
+
+    # 3. What share of the patients in the sports hospital suffers from dislocation-related issues?
+    dis_share = (df[(df.hospital == 'sports') &
+                   (df.diagnosis == 'dislocation')].shape[0] /
+                 df[df.hospital == 'sports'].shape[0])
+
+    print(f'The answer to the 3rd question is {dis_share:.3}')
+
+    # 4. What is the difference in the median ages of the patients in the general and sports hospitals?
+    age_differance = (df[df.hospital == 'general'].age.median() -
+                      df[df.hospital == 'sports'].age.median())
+
+    print(f'The answer to the 4th question is {int(age_differance)}')
+
+    # 5. How many blood tests were taken?
+    max_test = (
+        df[df.blood_test == 't']
+        .pivot_table(index='hospital',
+                     values='blood_test',
+                     aggfunc='count',
+                     sort=True).iloc)[-1]
+
+    print(f'The answer to the 5th question is {max_test.name}, {int(max_test.blood_test)} blood tests')
