@@ -26,12 +26,33 @@ class Node:
 
 class DecisionTree:
 
-    def __init__(self, root, min_samples=1):
+    def __init__(self, root, min_samples=1, log_fit=False, log_predict=False):
         self.root = root
         self.min_samples = min_samples
+        self.log_train = log_fit
+        self.log_predict = log_predict
 
     def fit(self, X, y):
         self.split_data(self.root, X, y)
+
+    def predict(self, X_test):
+        y_test = []
+        for idx, row in X_test.iterrows():
+            if self.log_predict:
+                print(f'Prediction for sample # {idx}')
+            y_test.append(self.predict_label(self.root, row))
+
+    def predict_label(self, node: Node, obs):
+        if node.term:
+            if self.log_predict:
+                print(f'\tPredicted label: {node.label}')
+            return node.label
+        else:
+            if self.log_predict:
+                print(f'\tConsidering decision rule on feature {node.feature} with value {node.value}')
+
+            side = node.left if obs[node.feature] == node.value else node.right
+            return self.predict_label(side, obs)
 
     @staticmethod
     def _gini(labels) -> float:
@@ -58,7 +79,8 @@ class DecisionTree:
             node.set_term(labels[0])
         else:
             _, feature, value, left, right = self.split(data, labels)
-            print(f'Made split: {feature} is {value}')
+            if self.log_train:
+                print(f'Made split: {feature} is {value}')
             node.feature = feature
             node.value = value
             node.left = Node()
@@ -92,13 +114,18 @@ class DecisionTree:
 
 
 def main() -> None:
-    # file_path = '../data/data_stage4.csv'
+    # file_path_train = '../data/data_stage5_train.csv'
+    # file_path_test = '../data/data_stage5_test.csv'
 
-    file_path = input()
-    df = pd.read_csv(file_path, index_col=0)
+    file_path_train, file_path_test = input().split()
+
+    df = pd.read_csv(file_path_train, index_col=0)
     X, y = df.iloc[:, :-1], df.iloc[:, -1]
-    tree = DecisionTree(Node())
+    tree = DecisionTree(Node(), log_predict=True)
     tree.fit(X, y)
+
+    df_test = pd.read_csv(file_path_test, index_col=0)
+    tree.predict(df_test)
 
 
 if __name__ == '__main__':
