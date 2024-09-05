@@ -29,11 +29,12 @@ class Node:
 
 class DecisionTree:
 
-    def __init__(self, root, min_samples=1, log_fit=False, log_predict=False):
+    def __init__(self, root, min_samples=1, log_fit=False, log_predict=False, numerical=[]):
         self.root = root
         self.min_samples = min_samples
         self.log_train = log_fit
         self.log_predict = log_predict
+        self.numerical_feature = numerical
 
     def fit(self, X, y):
         self.split_data(self.root, X, y)
@@ -77,11 +78,20 @@ class DecisionTree:
         result = []
         for col in data.columns:
             for val in data[col].unique():
-                weight = DecisionTree._weighted_gini(labels[data[col] == val], labels[data[col] != val])
+                if col in self.numerical_feature:
+                    weight = DecisionTree._weighted_gini(labels[data[col] <= val], labels[data[col] > val])
+                else:
+                    weight = DecisionTree._weighted_gini(labels[data[col] == val], labels[data[col] != val])
                 result.append((weight, col, val))
         gini_value, col, val = min(result, key=lambda x: x[0])
+
+        if col in self.numerical_feature:
+            left, right = data[data[col] <= val], data[data[col] > val]
+        else:
+            left, right = data[data[col] == val], data[data[col] != val]
+
         return (round(gini_value, 4), col, val,
-                data[data[col] == val].index.to_list(), data[data[col] != val].index.to_list())
+                left.index.to_list(), right.index.to_list())
 
     def split_data(self, node: Node, data: pd.DataFrame, labels: pd.Series) -> None:
         if self.is_leaf(data, labels):
@@ -122,18 +132,20 @@ class DecisionTree:
 
 
 def main() -> None:
-    # file_path_train = '../data/data_stage6_train.csv'
+    # file_path_train = '../data/data_stage7_train.csv'
     # file_path_test = '../data/data_stage6_test.csv'
 
-    file_path_train, file_path_test = input().split()
-
+    # file_path_train, file_path_test = input().split()
+    file_path_train = input()
     df = pd.read_csv(file_path_train, index_col=0)
     X, y = df.iloc[:, :-1], df.iloc[:, -1]
-    tree = DecisionTree(Node(), min_samples=74)
-    tree.fit(X, y)
+    tree = DecisionTree(Node(), min_samples=74, numerical=['Age', 'Fare'])
+    print(*tree.split(X, y))
+    # tree.fit(X, y)
 
-    df_test = pd.read_csv(file_path_test, index_col=0)
-    DecisionTree.evaluate(df_test.iloc[:, -1], tree.predict(df_test.iloc[:, :-1]))
+    # df_test = pd.read_csv(file_path_test, index_col=0)
+    # DecisionTree.evaluate(df_test.iloc[:, -1], tree.predict(df_test.iloc[:, :-1]))
+
 
 
 if __name__ == '__main__':
