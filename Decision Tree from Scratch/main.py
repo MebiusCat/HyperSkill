@@ -7,24 +7,24 @@ import pandas as pd
 
 class Node:
 
-  def __init__(self):
-    # class initialization
-    self.left = None
-    self.right = None
-    self.term = False
-    self.label = None
-    self.feature = None
-    self.value = None
+    def __init__(self):
+        # class initialization
+        self.left = None
+        self.right = None
+        self.term = False
+        self.label = None
+        self.feature = None
+        self.value = None
 
-  def set_split(self, feature, value):
-    # this function saves the node splitting feature and its value
-    self.feature = feature
-    self.value = value
+    def set_split(self, feature, value):
+        # this function saves the node splitting feature and its value
+        self.feature = feature
+        self.value = value
 
-  def set_term(self, label):
-    # if the node is a leaf, this function saves its label
-    self.term = True
-    self.label = label
+    def set_term(self, label):
+        # if the node is a leaf, this function saves its label
+        self.term = True
+        self.label = label
 
 
 class DecisionTree:
@@ -56,13 +56,16 @@ class DecisionTree:
             if self.log_predict:
                 print(f'\tConsidering decision rule on feature {node.feature} with value {node.value}')
 
-            side = node.left if obs[node.feature] == node.value else node.right
+            if node.feature in self.numerical_feature:
+                side = node.left if obs[node.feature] <= node.value else node.right
+            else:
+                side = node.left if obs[node.feature] == node.value else node.right
             return self.predict_label(side, obs)
 
     @staticmethod
     def evaluate(y_true, y_pred):
         mtrx = confusion_matrix(y_true, y_pred)
-        print(round(mtrx[1, 1]/ (sum(mtrx[1])), 3), round(mtrx[0, 0] / (sum(mtrx[0])), 3))
+        print(round(mtrx[1, 1] / (sum(mtrx[1])), 3), round(mtrx[0, 0] / (sum(mtrx[0])), 3))
 
     @staticmethod
     def _gini(labels) -> float:
@@ -132,12 +135,22 @@ class DecisionTree:
 
 
 def main() -> None:
-    file_path_train = input()
+    # file_path_train = '../data/data_stage8_train.csv'
+    # file_path_test = '../data/data_stage8_test.csv'
+
+    file_path_train, file_path_test = input().split()
     df = pd.read_csv(file_path_train, index_col=0)
     X, y = df.drop(columns='Survived'), df['Survived']
-    tree = DecisionTree(Node(), min_samples=74, numerical=['Age', 'Fare'])
+    tree = DecisionTree(Node(),
+                        min_samples=1,
+                        numerical=['Age', 'Fare'],
+                        log_fit=True,
+                        log_predict=True)
 
-    print(*tree.split(X, y))
+    tree.fit(X, y)
+
+    df_test = pd.read_csv(file_path_test, index_col=0)
+    tree.predict(df_test)
 
 
 if __name__ == '__main__':
