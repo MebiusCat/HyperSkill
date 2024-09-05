@@ -120,37 +120,18 @@ class DecisionTree:
         if max([data[col].nunique() for col in data.columns]) == 1:
             return True
 
-    @staticmethod
-    def gini_test():
-        node = input().split()
-        left_split = input().split()
-        right_split = input().split()
-
-        # data = [1, 0, 1, 1, 0, 1, 0, 1, 0]
-        # left_split = [1, 0, 1, 1]
-        # right_split = [0, 1, 0, 1, 0]
-
-        print(round(DecisionTree._gini(node), 2))
-        print(round(DecisionTree._weighted_gini(pd.Series(left_split), pd.Series(right_split)), 2))
-
 
 def main() -> None:
-    # file_path_train = '../data/data_stage8_train.csv'
-    # file_path_test = '../data/data_stage8_test.csv'
-
     file_path_train, file_path_test = input().split()
     df = pd.read_csv(file_path_train, index_col=0)
     X, y = df.drop(columns='Survived'), df['Survived']
     tree = DecisionTree(Node(),
-                        min_samples=1,
-                        numerical=['Age', 'Fare'],
-                        log_fit=True,
-                        log_predict=True)
-
+                        min_samples=74,
+                        numerical=['Age', 'Fare'])
     tree.fit(X, y)
 
     df_test = pd.read_csv(file_path_test, index_col=0)
-    tree.predict(df_test)
+    tree.evaluate(df_test['Survived'], tree.predict(df_test.drop(columns='Survived')))
 
 
 if __name__ == '__main__':
