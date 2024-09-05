@@ -132,20 +132,12 @@ class DecisionTree:
 
 
 def main() -> None:
-    # file_path_train = '../data/data_stage7_train.csv'
-    # file_path_test = '../data/data_stage6_test.csv'
-
-    # file_path_train, file_path_test = input().split()
     file_path_train = input()
     df = pd.read_csv(file_path_train, index_col=0)
-    X, y = df.iloc[:, :-1], df.iloc[:, -1]
+    X, y = df.drop(columns='Survived'), df['Survived']
     tree = DecisionTree(Node(), min_samples=74, numerical=['Age', 'Fare'])
+
     print(*tree.split(X, y))
-    # tree.fit(X, y)
-
-    # df_test = pd.read_csv(file_path_test, index_col=0)
-    # DecisionTree.evaluate(df_test.iloc[:, -1], tree.predict(df_test.iloc[:, :-1]))
-
 
 
 if __name__ == '__main__':
