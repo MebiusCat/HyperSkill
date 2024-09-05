@@ -1,4 +1,7 @@
 # Decision Tree from Scratch
+from sklearn.metrics import confusion_matrix
+from scipy.stats import mode
+
 import pandas as pd
 
 
@@ -41,6 +44,7 @@ class DecisionTree:
             if self.log_predict:
                 print(f'Prediction for sample # {idx}')
             y_test.append(self.predict_label(self.root, row))
+        return y_test
 
     def predict_label(self, node: Node, obs):
         if node.term:
@@ -53,6 +57,11 @@ class DecisionTree:
 
             side = node.left if obs[node.feature] == node.value else node.right
             return self.predict_label(side, obs)
+
+    @staticmethod
+    def evaluate(y_true, y_pred):
+        mtrx = confusion_matrix(y_true, y_pred)
+        print(round(mtrx[1, 1]/ (sum(mtrx[1])), 3), round(mtrx[0, 0] / (sum(mtrx[0])), 3))
 
     @staticmethod
     def _gini(labels) -> float:
@@ -75,8 +84,8 @@ class DecisionTree:
                 data[data[col] == val].index.to_list(), data[data[col] != val].index.to_list())
 
     def split_data(self, node: Node, data: pd.DataFrame, labels: pd.Series) -> None:
-        if DecisionTree.is_leaf(data, labels):
-            node.set_term(labels[0])
+        if self.is_leaf(data, labels):
+            node.set_term(mode(labels)[0])
         else:
             _, feature, value, left, right = self.split(data, labels)
             if self.log_train:
@@ -90,9 +99,8 @@ class DecisionTree:
             self.split_data(node.right, data.iloc[right].reset_index(drop=True),
                             labels.iloc[right].reset_index(drop=True))
 
-    @staticmethod
-    def is_leaf(data, labels):
-        if len(data) == 1:
+    def is_leaf(self, data, labels):
+        if len(data) <= self.min_samples:
             return True
         if DecisionTree._gini(labels) == 0:
             return True
@@ -114,18 +122,18 @@ class DecisionTree:
 
 
 def main() -> None:
-    # file_path_train = '../data/data_stage5_train.csv'
-    # file_path_test = '../data/data_stage5_test.csv'
+    # file_path_train = '../data/data_stage6_train.csv'
+    # file_path_test = '../data/data_stage6_test.csv'
 
     file_path_train, file_path_test = input().split()
 
     df = pd.read_csv(file_path_train, index_col=0)
     X, y = df.iloc[:, :-1], df.iloc[:, -1]
-    tree = DecisionTree(Node(), log_predict=True)
+    tree = DecisionTree(Node(), min_samples=74)
     tree.fit(X, y)
 
     df_test = pd.read_csv(file_path_test, index_col=0)
-    tree.predict(df_test)
+    DecisionTree.evaluate(df_test.iloc[:, -1], tree.predict(df_test.iloc[:, :-1]))
 
 
 if __name__ == '__main__':
