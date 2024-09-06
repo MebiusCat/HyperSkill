@@ -1,4 +1,5 @@
 import matplotlib.pyplot as plt
+import numpy as np
 import pandas as pd
 import os
 import requests
@@ -13,6 +14,46 @@ def get_place(row):
     if not row['born_in']:
         row['born_in'] = row['place_of_birth']
     return row
+
+
+def pie_chart(df):
+    countries_more_25 = df.groupby(['born_in']).agg({'year': 'count'}).query('year >= 25').index
+
+    df['country_display'] = df['born_in'].apply(
+        lambda x: x if x in countries_more_25 else 'Other countries')
+
+    data = df.country_display.value_counts()
+    colors = ['blue', 'orange', 'red', 'yellow', 'green', 'pink', 'brown', 'cyan', 'purple']
+    exp_countries = ['Poland', 'Canada', 'Austria', 'Russia', 'France', 'UK']
+    explode = [0.08 if x in exp_countries else 0 for x in data.index]
+
+    fig, axes = plt.subplots(figsize=(12, 12))
+
+    plt.pie(data,
+            labels=data.index,
+            colors=colors,
+            explode=explode,
+            autopct=lambda p: "{:.2f}%\n({:.0f})".format(p * sum(data) / 100, p))
+    plt.show()
+
+def bar_chart(df):
+    df = df.drop(df[df.category == ''].index)
+    data_m = df[df.gender == 'male'].category.value_counts().sort_index()
+    data_w = df[df.gender == 'female'].category.value_counts().sort_index()
+
+    fig, axes = plt.subplots(figsize=(10, 10))
+
+    x_axis = np.arange(len(df.category.unique()))
+    male = axes.bar(x_axis - 0.2, data_m, width=0.4, label="Males", color='blue')
+    female = axes.bar(x_axis + 0.2, data_w, width=0.4, label="Females", color='crimson')
+
+    plt.xticks(x_axis, data_m.index)
+    plt.yticks(range(0, 200, 25))
+    plt.xlabel('Category')
+    plt.ylabel('Nobel Laureates Count')
+    plt.title('The total count of male and female Nobel Prize winners by categories')
+    plt.legend(['Males', 'Females'])
+    plt.show()
 
 
 if __name__ == '__main__':
@@ -49,21 +90,7 @@ if __name__ == '__main__':
     # print(df.year_born.to_list(), df.age_of_winning.to_list(), sep='\n')
 
     # Stage 4
-    countries_more_25 = df.groupby(['born_in']).agg({'year': 'count'}).query('year >= 25').index
+    # pie_chart(df)
 
-    df['country_display'] = df['born_in'].apply(
-        lambda x: x if x in countries_more_25 else 'Other countries')
-
-    data = df.country_display.value_counts()
-    colors = ['blue', 'orange', 'red', 'yellow', 'green', 'pink', 'brown', 'cyan', 'purple']
-    exp_countries = ['Poland', 'Canada', 'Austria', 'Russia', 'France', 'UK']
-    explode = [0.08 if x in exp_countries else 0 for x in data.index]
-
-    fig, axes = plt.subplots(figsize=(12, 12))
-
-    plt.pie(data,
-            labels=data.index,
-            colors=colors,
-            explode=explode,
-            autopct=lambda p: "{:.2f}%\n({:.0f})".format(p * sum(data) / 100, p))
-    plt.show()
+    # Stage 5
+    bar_chart(df)
