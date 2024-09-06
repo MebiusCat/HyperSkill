@@ -1,3 +1,4 @@
+import matplotlib.pyplot as plt
 import pandas as pd
 import os
 import requests
@@ -45,4 +46,24 @@ if __name__ == '__main__':
     # Stage 3
     df['year_born'] = df['date_of_birth'].str.extract(r'(\d{4})', expand=False).astype(int)
     df['age_of_winning'] = df['year'] - df['year_born']
-    print(df.year_born.to_list(), df.age_of_winning.to_list(), sep='\n')
+    # print(df.year_born.to_list(), df.age_of_winning.to_list(), sep='\n')
+
+    # Stage 4
+    countries_more_25 = df.groupby(['born_in']).agg({'year': 'count'}).query('year >= 25').index
+
+    df['country_display'] = df['born_in'].apply(
+        lambda x: x if x in countries_more_25 else 'Other countries')
+
+    data = df.country_display.value_counts()
+    colors = ['blue', 'orange', 'red', 'yellow', 'green', 'pink', 'brown', 'cyan', 'purple']
+    exp_countries = ['Poland', 'Canada', 'Austria', 'Russia', 'France', 'UK']
+    explode = [0.08 if x in exp_countries else 0 for x in data.index]
+
+    fig, axes = plt.subplots(figsize=(12, 12))
+
+    plt.pie(data,
+            labels=data.index,
+            colors=colors,
+            explode=explode,
+            autopct=lambda p: "{:.2f}%\n({:.0f})".format(p * sum(data) / 100, p))
+    plt.show()
