@@ -9,10 +9,8 @@ def get_place(row):
         row['place_of_birth'] = row['place_of_birth'].split(',')[-1].strip()
     else:
         row['place_of_birth'] = None
-
     if not row['born_in']:
         row['born_in'] = row['place_of_birth']
-
     return row
 
 
@@ -40,8 +38,11 @@ if __name__ == '__main__':
     df = df.apply(get_place, axis=1)
     df = df.dropna(subset='born_in')
     df = df.reset_index(drop=True)
-
     df.born_in = df.born_in.replace(['US', 'United States', 'U.S.'], 'USA')
     df.born_in = df.born_in.replace('United Kingdom', 'UK')
+    # print(df.born_in.tolist())
 
-    print(df.born_in.tolist())
+    # Stage 3
+    df['year_born'] = df['date_of_birth'].str.extract(r'(\d{4})', expand=False).astype(int)
+    df['age_of_winning'] = df['year'] - df['year_born']
+    print(df.year_born.to_list(), df.age_of_winning.to_list(), sep='\n')
