@@ -37,7 +37,6 @@ def pie_chart(df):
     plt.show()
 
 def bar_chart(df):
-    df = df.drop(df[df.category == ''].index)
     data_m = df[df.gender == 'male'].category.value_counts().sort_index()
     data_w = df[df.gender == 'female'].category.value_counts().sort_index()
 
@@ -53,6 +52,24 @@ def bar_chart(df):
     plt.ylabel('Nobel Laureates Count')
     plt.title('The total count of male and female Nobel Prize winners by categories')
     plt.legend(['Males', 'Females'])
+    plt.show()
+
+
+def box_plot(df):
+    data = df[df.gender == 'male'].category.value_counts().sort_index()
+    data_w = df[df.gender == 'female'].category.value_counts().sort_index()
+
+    fig, axes = plt.subplots(figsize=(12, 8))
+    labels = sorted(df.category.unique())
+    data = [df[df.category == category].age_of_winning for category in labels]
+
+    labels.append('All categories')
+    data.append(df.age_of_winning)
+
+    plt.boxplot(data, labels=labels, showmeans=True)
+    plt.xlabel('Category', fontdict={'size': 14})
+    plt.ylabel('Age of Obtaining the Nobel Prize', fontdict={'size': 14})
+    plt.title('Distribution of Ages by Category', fontdict={'size':20})
     plt.show()
 
 
@@ -93,4 +110,8 @@ if __name__ == '__main__':
     # pie_chart(df)
 
     # Stage 5
-    bar_chart(df)
+    df = df.drop(df[df.category == ''].index)
+    # bar_chart(df)
+
+    # Stage 6
+    box_plot(df)
