@@ -1,5 +1,8 @@
 # Per Aspera ad Astra
-
+from astropy.coordinates import SkyCoord
+from astropy.cosmology import FlatLambdaCDM
+from astropy import units as u
+from itertools import combinations
 from scipy.stats import (shapiro,
                          fligner,
                          f_oneway,
@@ -11,7 +14,7 @@ import numpy as np
 import pandas as pd
 
 
-def stage_1(df):
+def stage_1():
     df = pd.read_csv('../Data/groups.tsv', delimiter='\t')
     df = df.dropna()
 
@@ -35,7 +38,8 @@ def stage_1(df):
 
     print(*means)
 
-def stage_2(df):
+
+def stage_2():
     df = pd.read_csv('../Data/groups.tsv', delimiter='\t')
     df = df.dropna()
 
@@ -95,5 +99,37 @@ def stage_4():
     print(f'{pearsonr(df_mean.mean_mu, df_mean.mean_T).pvalue}')
 
 
+def calc_separation(group_df):
+    result = []
+    galaxies = group_df.iterrows()
+    for obj1, obj2 in list(combinations(galaxies, 2)):
+        p1 = SkyCoord(ra=obj1[1].RA * u.degree, dec=obj1[1].DEC * u.degree, frame="fk5")
+        p2 = SkyCoord(ra=obj2[1].RA * u.degree, dec=obj2[1].DEC * u.degree, frame="fk5")
+        result.append(p1.separation(p2).to(u.rad).value)
+
+    return np.median(result)
+
+
+def stage_5():
+    my_cosmo = FlatLambdaCDM(H0=67.74, Om0=0.3089)
+
+    df = pd.read_csv('../Data/galaxies_coordinates.tsv', delimiter='\t', index_col=1)
+    df_groups = pd.read_csv('../Data/groups.tsv', delimiter='\t', index_col=0).dropna()
+
+    df_groups['dist'] = df_groups.z.map(lambda x: my_cosmo.angular_diameter_distance(x).to(u.kpc))
+
+    separation = df.groupby('Group', group_keys=False)[['RA', 'DEC', 'Group']].apply(calc_separation)
+    df_groups['sep'] = df_groups.index.map(separation) * df_groups['dist']
+    df_groups['sep'] = df_groups['sep'].apply(lambda x: x.value)
+
+    plt.scatter(df_groups.sep, df_groups.mean_mu)
+    # plt.show()
+
+    print(f'{df_groups.loc["HCG 2"].sep:.6f}', end=' ')
+    print(f'{shapiro(df_groups.sep).pvalue:.6f}', end=' ')
+    print(f'{shapiro(df_groups.mean_mu).pvalue:.6f}', end=' ')
+    print(f'{pearsonr(df_groups.mean_mu, df_groups.sep).pvalue:.6f}')
+
+
 if __name__ == '__main__':
-    stage_4()
+    stage_5()
