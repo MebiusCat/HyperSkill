@@ -3,7 +3,8 @@
 from scipy.stats import (shapiro,
                          fligner,
                          f_oneway,
-                         ks_2samp)
+                         ks_2samp,
+                         pearsonr)
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -72,5 +73,27 @@ def stage_3():
     print(ks_2samp(df_morph.n, df_isol.n).pvalue)
 
 
+def stage_4():
+    df_morph = pd.read_csv('../Data/galaxies_morphology.tsv', delimiter='\t')
+    df_groups = pd.read_csv('../Data/groups.tsv', delimiter='\t').dropna()
+
+    df_mean = df_morph.groupby('Group').agg({'n': 'mean', 'T': 'mean'})
+    df_mean.rename(columns={'n': 'mean_n', 'T': 'mean_T'}, inplace=True)
+    df_mean = df_mean.merge(df_groups, on='Group')
+
+    plt.scatter(df_mean.mean_mu, df_mean.mean_n)
+    # plt.show()
+
+    plt.scatter(df_mean.mean_mu, df_mean.mean_T)
+    # plt.show()
+
+    print(f'{shapiro(df_mean.mean_mu).pvalue:.5f}', end=' ')
+    print(f'{shapiro(df_mean.mean_n).pvalue:.5f}', end=' ')
+    print(f'{shapiro(df_mean.mean_T).pvalue:.5f}', end=' ')
+
+    print(f'{pearsonr(df_mean.mean_mu, df_mean.mean_n).pvalue:.5f}', end=' ')
+    print(f'{pearsonr(df_mean.mean_mu, df_mean.mean_T).pvalue}')
+
+
 if __name__ == '__main__':
-    stage_3()
+    stage_4()
