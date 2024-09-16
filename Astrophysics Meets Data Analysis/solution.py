@@ -166,4 +166,4 @@ def stage_5():
 
 
 if __name__ == '__main__':
-    stage_4()
+    stage_5()
