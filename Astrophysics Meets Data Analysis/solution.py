@@ -3,16 +3,11 @@ from astropy.coordinates import SkyCoord
 from astropy.cosmology import FlatLambdaCDM
 from astropy import units as u
 from itertools import combinations
-from scipy.stats import (shapiro,
-                         fligner,
-                         f_oneway,
-                         ks_2samp,
-                         pearsonr)
 
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-
+import scipy.stats as st
 
 def stage_1():
     df = pd.read_csv('../Data/groups.tsv', delimiter='\t')
@@ -46,14 +41,14 @@ def stage_2():
     data = [df[df.features == feature].mean_mu for feature in [1, 0]]
 
     # looks like normal
-    test_shapiro = [shapiro(df[df.features == feature].mean_mu)[1] for feature in [1, 0]]
+    test_shapiro = [st.shapiro(df[df.features == feature].mean_mu)[1] for feature in [1, 0]]
     print(*test_shapiro, end=' ')
 
     # the smaller statistic the smaller difference between variance
-    print(fligner(*data)[1], end=' ')
+    print(st.fligner(*data)[1], end=' ')
 
     # one-way analysis of variance (ANOVA)
-    F, p = f_oneway(data[0], data[1])
+    F, p = st.f_oneway(data[0], data[1])
     print(p)
 
 
@@ -74,7 +69,7 @@ def stage_3():
 
     print(f'{(df_morph.n > 2).sum() / df_morph.shape[0]:.5f}', end=' ')
     print(f'{(df_isol.n > 2).sum() / df_isol.shape[0]:.5f}', end=' ')
-    print(ks_2samp(df_morph.n, df_isol.n).pvalue)
+    print(st.ks_2samp(df_morph.n, df_isol.n).pvalue)
 
 
 def stage_4():
@@ -91,12 +86,35 @@ def stage_4():
     plt.scatter(df_mean.mean_mu, df_mean.mean_T)
     # plt.show()
 
-    print(f'{shapiro(df_mean.mean_mu).pvalue:.5f}', end=' ')
-    print(f'{shapiro(df_mean.mean_n).pvalue:.5f}', end=' ')
-    print(f'{shapiro(df_mean.mean_T).pvalue:.5f}', end=' ')
+    shapiro_pvalue_mu = st.shapiro(
+        df_mean.mean_mu
+    ).pvalue
 
-    print(f'{pearsonr(df_mean.mean_mu, df_mean.mean_n).pvalue:.5f}', end=' ')
-    print(f'{pearsonr(df_mean.mean_mu, df_mean.mean_T).pvalue}')
+    shapiro_pvalue_n = st.shapiro(
+        df_mean.mean_n
+    ).pvalue
+
+    shapiro_pvalue_T = st.shapiro(
+        df_mean.mean_T
+    ).pvalue
+
+    pearson_pvalue_mu_n = st.pearsonr(
+        df_mean.mean_mu,
+        df_mean.mean_n
+    ).pvalue
+
+    pearson_pvalue_mu_T = st.pearsonr(
+        df_mean.mean_mu,
+        df_mean.mean_T
+    ).pvalue
+
+    print('{:.5f} {:.5f} {:.5f} {:.5f} {:.5f}'.format(
+        shapiro_pvalue_mu,
+        shapiro_pvalue_n,
+        shapiro_pvalue_T,
+        pearson_pvalue_mu_n,
+        pearson_pvalue_mu_T
+    ))
 
 
 def calc_separation(group_df):
@@ -125,11 +143,27 @@ def stage_5():
     plt.scatter(df_groups.sep, df_groups.mean_mu)
     # plt.show()
 
-    print(f'{df_groups.loc["HCG 2"].sep:.6f}', end=' ')
-    print(f'{shapiro(df_groups.sep).pvalue:.6f}', end=' ')
-    print(f'{shapiro(df_groups.mean_mu).pvalue:.6f}', end=' ')
-    print(f'{pearsonr(df_groups.mean_mu, df_groups.sep).pvalue:.6f}')
+    separation_hcg_2 = df_groups.loc["HCG 2"].sep
+    shapiro_pvalue_separation = st.shapiro(
+        df_groups.sep
+    ).pvalue
+
+    shapiro_pvalue_mu = st.shapiro(
+        df_groups.mean_mu
+    ).pvalue
+
+    pearson_pvalue = st.pearsonr(
+        df_groups.mean_mu,
+        df_groups.sep
+    ).pvalue
+
+    print('{:.6f} {:.6f} {:.6f} {:.6f}'.format(
+        separation_hcg_2,
+        shapiro_pvalue_separation,
+        shapiro_pvalue_mu,
+        pearson_pvalue
+    ))
 
 
 if __name__ == '__main__':
-    stage_5()
+    stage_4()
