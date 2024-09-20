@@ -19,7 +19,7 @@ if 'data.csv' not in os.listdir('../Data'):
 # read data
 data = pd.read_csv('../Data/data.csv')
 
-X, y = data['rating'].to_numpy().reshape(-1, 1), data['salary']
+X, y = data[['rating']], data['salary']
 
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=100)
 
