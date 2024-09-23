@@ -73,6 +73,25 @@ def analysis():
         result[i] = (col, mape(y_test, y_pred))
 
     print(f'{min(result.values(), key=lambda x: x[1])[1]:.5f}')
+    print(result)
+
+
+def negative():
+    # read data
+    data = pd.read_csv('../Data/data.csv')
+
+    X, y = data.drop(['age', 'experience', 'salary'], axis=1), data['salary']
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=100)
+
+    model = LinearRegression()
+    model.fit(X_train, y_train)
+    y_pred_zero = model.predict(X_test)
+    y_pred_zero[y_pred_zero < 0] = 0
+
+    y_pred_mean = model.predict(X_test)
+    y_pred_mean[y_pred_mean < 0] = y_pred_mean.mean()
+    print(f'{min(mape(y_test, y_pred_zero), mape(y_test, y_pred_mean)):.5}')
+
 
 # checking ../Data directory presence
 if not os.path.exists('../Data'):
@@ -84,4 +103,4 @@ if 'data.csv' not in os.listdir('../Data'):
     r = requests.get(url, allow_redirects=True)
     open('../Data/data.csv', 'wb').write(r.content)
 
-analysis()
+negative()
