@@ -6,6 +6,7 @@ from sklearn.linear_model import LinearRegression
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import mean_absolute_percentage_error as mape
 
+
 def linear_model():
     # read data
     data = pd.read_csv('../Data/data.csv')
@@ -21,6 +22,7 @@ def linear_model():
         model.intercept_,
         model.coef_[0],
         mape(y_test, y_pred)))
+
 
 def pow_model():
     # read data
@@ -39,6 +41,22 @@ def pow_model():
     print(f'{min(result.values()):.5f}')
 
 
+def multi_model():
+    # read data
+    data = pd.read_csv('../Data/data.csv')
+
+    result = {}
+
+    X, y = data.drop(['salary'], axis=1), data['salary']
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=100)
+
+    model = LinearRegression()
+    model.fit(X_train, y_train)
+    y_pred = model.predict(X_test)
+
+    print(*model.coef_, sep=', ')
+
+
 # checking ../Data directory presence
 if not os.path.exists('../Data'):
     os.mkdir('../Data')
@@ -49,4 +67,4 @@ if 'data.csv' not in os.listdir('../Data'):
     r = requests.get(url, allow_redirects=True)
     open('../Data/data.csv', 'wb').write(r.content)
 
-pow_model()
+multi_model()
