@@ -22,22 +22,23 @@ class CustomLogisticRegression:
         bias, *t = coef_
         return self.sigmoid(bias * self.fit_intercept + t @ row)
 
-    def fit_mse(self, X_train, y_train):
-        self.coef_ = np.zeros(X_train.shape[1] + 1)  # initialized weights
+    def fit_mse(self, X, y):
+        if self.fit_intercept:
+            X = np.concatenate((np.ones((X.shape[0], 1)), X), axis=1)
+
+        self.coef_ = np.zeros(X.shape[1])
 
         for _ in range(self.n_epoch):
-            for i, row in enumerate(X_train):
-                y_hat = self.predict_proba(row, self.coef_)
-                y_calc = (y_hat - y_train[i]) * y_hat * (1 - y_hat)
-                self.coef_[1:] = self.coef_[1:] - self.l_rate * y_calc * row
-                self.coef_[0] = self.fit_intercept * (self.coef_[0] - self.l_rate * y_calc)
+            y_hat = self.sigmoid(X @ self.coef_)
+            y_grad = (y_hat - y) * y_hat * (1 - y_hat)
+            self.coef_ -= self.l_rate * X.T @ y_grad
 
-    def predict(self, X_test, cut_off=0.5):
-        predictions = []
-        for row in X_test:
-            y_hat = self.predict_proba(row, self.coef_)
-            predictions.append(1 if y_hat >= 0.5 else 0)
-        return np.array(predictions).tolist()  # predictions are binary values - 0 or 1
+    def predict(self, X, cut_off=0.5):
+        if self.fit_intercept:
+            X = np.concatenate((np.ones((X.shape[0], 1)), X), axis=1)
+
+        y_pred = self.sigmoid(X @ self.coef_)
+        return [1 if y >= cut_off else 0 for y in y_pred]
 
 
 data = load_breast_cancer(as_frame=True)
@@ -49,14 +50,8 @@ X = (X - X.mean()) / X.std()
 X_train, X_test, y_train, y_test = (
     train_test_split(X, y, train_size=0.8, random_state=43))
 
-# w = np.array([0.77001597, -2.12842434, -2.39305793])
-# model = CustomLogisticRegression()
-# result = X_test[:10].apply(model.predict_proba, args=(w,), axis=1)
-# print(result.tolist())
+model = CustomLogisticRegression(fit_intercept=True, l_rate=0.01, n_epoch=1000)
+model.fit_mse(X_train, y_train)
+acc = accuracy_score(y_test, model.predict(X_test))
 
-model = CustomLogisticRegression(n_epoch=1000)
-model.fit_mse(X_train.to_numpy(), y_train.to_numpy())
-y_pred = model.predict(X_test.to_numpy())
-result = {'coef_': np.array(model.coef_).tolist(),
-          'accuracy': accuracy_score(y_test, y_pred)}
-print(result)
+print({'coef_': model.coef_.tolist(), 'accuracy': acc})
