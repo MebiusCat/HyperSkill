@@ -1,8 +1,6 @@
 # Logistic regression
 import numpy as np
-import pandas as pd
 
-from sklearn.linear_model import LinearRegression
 from sklearn.datasets import load_breast_cancer
 from sklearn.metrics import accuracy_score
 from sklearn.model_selection import train_test_split
@@ -33,6 +31,16 @@ class CustomLogisticRegression:
             y_grad = (y_hat - y) * y_hat * (1 - y_hat)
             self.coef_ -= self.l_rate * X.T @ y_grad
 
+    def fit_log_loss(self, X, y):
+        if self.fit_intercept:
+            X = np.concatenate((np.ones((X.shape[0], 1)), X), axis=1)
+
+        self.coef_ = np.zeros(X.shape[1])
+
+        for _ in range(self.n_epoch):
+            y_hat = self.sigmoid(X @ self.coef_)
+            self.coef_ -= self.l_rate * X.T @ (y_hat - y) / X.shape[0]
+
     def predict(self, X, cut_off=0.5):
         if self.fit_intercept:
             X = np.concatenate((np.ones((X.shape[0], 1)), X), axis=1)
@@ -51,7 +59,7 @@ X_train, X_test, y_train, y_test = (
     train_test_split(X, y, train_size=0.8, random_state=43))
 
 model = CustomLogisticRegression(fit_intercept=True, l_rate=0.01, n_epoch=1000)
-model.fit_mse(X_train, y_train)
+model.fit_log_loss(X_train, y_train)
 acc = accuracy_score(y_test, model.predict(X_test))
 
 print({'coef_': model.coef_.tolist(), 'accuracy': acc})
