@@ -48,18 +48,21 @@ class CustomLogisticRegression:
         y_pred = self.sigmoid(X @ self.coef_)
         return [1 if y >= cut_off else 0 for y in y_pred]
 
+def main():
+    data = load_breast_cancer(as_frame=True)
+    X = data.data[['worst concave points', 'worst perimeter', 'worst radius']].copy()
+    y = data.target
 
-data = load_breast_cancer(as_frame=True)
-X = data.data[['worst concave points', 'worst perimeter', 'worst radius']].copy()
-y = data.target
+    X = (X - X.mean()) / X.std()
 
-X = (X - X.mean()) / X.std()
+    X_train, X_test, y_train, y_test = (
+        train_test_split(X, y, train_size=0.8, random_state=43))
 
-X_train, X_test, y_train, y_test = (
-    train_test_split(X, y, train_size=0.8, random_state=43))
+    model = CustomLogisticRegression(fit_intercept=True, l_rate=0.01, n_epoch=1000)
+    model.fit_log_loss(X_train, y_train)
+    acc = accuracy_score(y_test, model.predict(X_test))
 
-model = CustomLogisticRegression(fit_intercept=True, l_rate=0.01, n_epoch=1000)
-model.fit_log_loss(X_train, y_train)
-acc = accuracy_score(y_test, model.predict(X_test))
+    print({'coef_': model.coef_.tolist(), 'accuracy': acc})
 
-print({'coef_': model.coef_.tolist(), 'accuracy': acc})
+if __name__ == '__main__':
+    main()
