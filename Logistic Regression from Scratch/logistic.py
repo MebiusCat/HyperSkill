@@ -27,7 +27,6 @@ class CustomLogisticRegression:
             X = np.concatenate((np.ones((X.shape[0], 1)), X), axis=1)
 
         self.coef_ = np.zeros(X.shape[1])
-        errors = []
         for _ in range(self.n_epoch):
             y_hat = self.sigmoid(X @ self.coef_)
             y_grad = (y_hat - y) * y_hat * (1 - y_hat)
@@ -40,8 +39,7 @@ class CustomLogisticRegression:
             X = np.concatenate((np.ones((X.shape[0], 1)), X), axis=1)
 
         self.coef_ = np.zeros(X.shape[1])
-
-        for _epoch in range(self.n_epoch):
+        for _ in range(self.n_epoch):
             y_hat = self.sigmoid(X @ self.coef_)
             self.coef_ -= self.l_rate * X.T @ (y_hat - y) / X.shape[0]
             self.errors.append(-(y * np.log(y_hat) + (1 - y) * np.log(1 - y_hat) )/ X.shape[0])
