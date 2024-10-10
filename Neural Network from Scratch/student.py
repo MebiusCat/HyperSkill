@@ -80,8 +80,8 @@ def model_training(model, X, y, batch_size=100, alpha=0.1, n_epoch=20):
         mse_, acc_ = epoch_training(model, X, y, batch_size, alpha)
         mse_log.append(mse_)
         accuracy_log.append(acc_)
-    # plot(mse_log, accuracy_log)
-    return accuracy_zero, accuracy_log
+    plot(mse_log, accuracy_log)
+    return accuracy_log
 
 
 def epoch_training(model, X, y, batch_size=100, alpha=0.1, n_epoch=20):
@@ -194,9 +194,7 @@ if __name__ == '__main__':
     X_train_scaled, X_test_scaled = scale(X_train, X_test)
 
     model = TwoLayerNeural(X_train_scaled.shape[1], 10)
-    model.forward(X_train_scaled[:2])
-    model.backprop(X_train_scaled[:2], y_train[:2])
-
+    accuracy_log = model_training(model, X_train_scaled, y_train, alpha=0.5)
     print(
-        np.array([mse(model.forward(X_train_scaled[:2]), y_train[:2])]).tolist()
+        np.array(accuracy_log).tolist()
     )
