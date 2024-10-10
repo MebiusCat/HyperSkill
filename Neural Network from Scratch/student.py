@@ -3,6 +3,7 @@ import pandas as pd
 import os
 import requests
 from matplotlib import pyplot as plt
+from tqdm import tqdm
 
 
 def one_hot(data: np.ndarray) -> np.ndarray:
@@ -54,7 +55,7 @@ def sigmoid(x):
 
 
 def d_sigmoid(x):
-    return sigmoid(x) * (1 - sigmoid(x))
+    return sigmoid(x) * (1. - sigmoid(x))
 
 
 def mse(y_pred, y_true):
@@ -62,7 +63,39 @@ def mse(y_pred, y_true):
 
 
 def d_mse(y_pred, y_true):
-    return 2 * (y_pred - y_true)
+    return 2. * (y_pred - y_true)
+
+
+def accuracy(y_pred, y_true):
+    return np.sum(np.argmax(y_pred, axis=1) == np.argmax(y_true, axis=1)) / y_true.shape[0]
+
+
+def model_training(model, X, y, batch_size=100, alpha=0.1, n_epoch=20):
+    mse_log = []
+    accuracy_log = []
+
+    accuracy_zero = accuracy(model.forward(X), y)
+
+    for _ in tqdm(range(n_epoch)):
+        mse_, acc_ = epoch_training(model, X, y, batch_size, alpha)
+        mse_log.append(mse_)
+        accuracy_log.append(acc_)
+    # plot(mse_log, accuracy_log)
+    return accuracy_zero, accuracy_log
+
+def epoch_training(model, X, y, batch_size=100, alpha=0.1, n_epoch=20):
+    for i in range(0, X.shape[0], batch_size):
+        X_batch, y_batch = X[i: i + batch_size], y[i: i + batch_size]
+
+        model.forward(X_batch)
+        model.backprop(X_batch, y_batch, alpha)
+    y_pred = model.forward(X)
+    return (mse(y_pred, y), accuracy(y_pred, y))
+
+
+def step(model, X, y, alpha):
+    model.forward(X)
+    model.backprop(X, y, alpha)
 
 
 class OneLayerNeural:
@@ -122,14 +155,8 @@ if __name__ == '__main__':
     X_train_scaled, X_test_scaled = scale(X_train, X_test)
 
     model = OneLayerNeural(X_train_scaled.shape[1], 10)
-    model.forward(X_train_scaled[:2])
-    model.backprop(X_train_scaled[:2], y_train[:2])
-
-    a = np.array([-1, 0, 1, 2])
-    b = np.array([4, 3, 2, 1])
+    acc_0, acc_log = model_training(model, X_train_scaled, y_train, alpha=0.5)
     print(
-        np.array([mse(a, b)]).tolist(),
-        d_mse(a, b).tolist(),
-        d_sigmoid(a).tolist(),
-        np.array([mse(model.forward(X_train_scaled[:2]), y_train[:2])])
+        np.array([acc_0]).tolist(),
+        np.array(acc_log).tolist()
     )
