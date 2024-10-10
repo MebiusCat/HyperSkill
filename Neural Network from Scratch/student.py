@@ -83,6 +83,7 @@ def model_training(model, X, y, batch_size=100, alpha=0.1, n_epoch=20):
     # plot(mse_log, accuracy_log)
     return accuracy_zero, accuracy_log
 
+
 def epoch_training(model, X, y, batch_size=100, alpha=0.1, n_epoch=20):
     for i in range(0, X.shape[0], batch_size):
         X_batch, y_batch = X[i: i + batch_size], y[i: i + batch_size]
@@ -122,6 +123,44 @@ class OneLayerNeural:
         self.w -= alpha * grad_w
         self.b -= alpha * grad_b
 
+
+class TwoLayerNeural():
+    def __init__(self, n_features, n_classes, n_hidden=64):
+        # Initializing weights
+        self.w = xavier(n_features, n_hidden)
+        self.w_hid = xavier(n_hidden, n_classes)
+        self.b = xavier(1, n_hidden)
+        self.b_hid = xavier(1, n_classes)
+        self.f_forward = None
+        self.s_forward = None
+
+    def forward(self, X):
+        # Calculating feedforward
+        self.f_forward = sigmoid(X @ self.w + self.b)
+        self.s_forward = sigmoid(self.f_forward @ self.w_hid + self.b_hid)
+        return self.s_forward
+
+    def backprop(self, X, y, alpha=0.1):
+        # Calculating gradients for each of
+        # your weights and biases.
+        z_hid = self.f_forward @ self.w_hid + self.b_hid
+        grad_mse_hid = d_mse(self.s_forward, y) * d_sigmoid(z_hid) / X.shape[0]
+        grad_w_hid = self.f_forward.T @ grad_mse_hid
+        grad_b_hid = np.sum(grad_mse_hid, axis=0)
+
+        z = X @ self.w + self.b
+        grad_mse = grad_mse_hid @ self.w_hid.T * d_sigmoid(z)
+        grad_w = X.T @ grad_mse
+        grad_b = np.sum(grad_mse, axis=0)
+
+        # Updating your weights and biases.
+        self.w -= alpha * grad_w
+        self.b -= alpha * grad_b
+
+        self.w_hid -= alpha * grad_w_hid
+        self.b_hid -= alpha * grad_b_hid
+
+
 if __name__ == '__main__':
 
     if not os.path.exists('../Data'):
@@ -154,9 +193,10 @@ if __name__ == '__main__':
 
     X_train_scaled, X_test_scaled = scale(X_train, X_test)
 
-    model = OneLayerNeural(X_train_scaled.shape[1], 10)
-    acc_0, acc_log = model_training(model, X_train_scaled, y_train, alpha=0.5)
+    model = TwoLayerNeural(X_train_scaled.shape[1], 10)
+    model.forward(X_train_scaled[:2])
+    model.backprop(X_train_scaled[:2], y_train[:2])
+
     print(
-        np.array([acc_0]).tolist(),
-        np.array(acc_log).tolist()
+        np.array([mse(model.forward(X_train_scaled[:2]), y_train[:2])]).tolist()
     )
