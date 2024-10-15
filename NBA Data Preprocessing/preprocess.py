@@ -1,3 +1,4 @@
+import numpy as np
 import pandas as pd
 import os
 import requests
@@ -18,6 +19,18 @@ def clean_data(data_path):
 
     return df
 
+def feature_data(df):
+    df['version'] = np.where(df['version'] == 'NBA2k20', 2020, 2021)
+    df['age'] = (pd.to_datetime(df['version'], format='%Y') - df['b_day']).dt.days / 365.25
+    df['age'] = df['age'].astype(int) + 1
+    df['experience'] =\
+        (pd.to_datetime(df['version'], format='%Y') - df['draft_year']).dt.days / 365
+    df['experience'] = df['experience'].astype(int)
+    df['bmi'] = df['weight'] / df['height'] ** 2
+
+    df.drop(columns=['version', 'b_day', 'draft_year', 'weight', 'height'], inplace=True)
+    df.drop(columns=['full_name', 'jersey', 'draft_peak', 'college'], inplace=True)
+    return df
 
 # Checking ../Data directory presence
 if not os.path.exists('../Data'):
@@ -33,5 +46,7 @@ if 'nba2k-full.csv' not in os.listdir('../Data'):
 
 data_path = "../Data/nba2k-full.csv"
 
-df = clean_data(data_path)
-print(df[['b_day', 'team', 'height', 'weight', 'country', 'draft_round', 'draft_year', 'salary']].head())
+df_cleaned = clean_data(data_path)
+df = feature_data(df_cleaned)
+
+print(df[['age', 'experience', 'bmi']].head())
