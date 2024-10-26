@@ -7,8 +7,9 @@ from sklearn.linear_model import SGDClassifier
 from sklearn.tree import DecisionTreeClassifier
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.svm import SVC
-from sklearn.metrics import make_scorer, f1_score
+from sklearn.metrics import make_scorer, f1_score, classification_report
 from sklearn.pipeline import Pipeline
+from sklearn.ensemble import VotingClassifier
 
 import warnings
 warnings.filterwarnings('ignore')
@@ -76,11 +77,19 @@ def eval_model(model_name, clf, params):
 
     result[model_name] = {'f1_train': round(float(f1_train), 3),
                           'f1_test': round(float(f1_test), 3)}
+    return grid_search.best_estimator_
 
 
-eval_model('sgd', SGDClassifier(random_state=random_state), sgd_params)
-eval_model('dt', DecisionTreeClassifier(random_state=random_state), dt_params)
-eval_model('kn', KNeighborsClassifier(), kn_params)
-eval_model('sv', SVC(random_state=random_state, probability=True), sv_params)
+clf_sgd = eval_model('sgd', SGDClassifier(random_state=random_state), sgd_params)
+clf_dt = eval_model('dt', DecisionTreeClassifier(random_state=random_state), dt_params)
+clf_kn = eval_model('kn', KNeighborsClassifier(), kn_params)
+clf_sv = eval_model('sv', SVC(random_state=random_state, probability=True), sv_params)
 
-pd.DataFrame(result).to_csv('../data/stage3.csv')
+eclf = VotingClassifier(estimators=[
+    ('sgd', clf_sgd),
+    ('sv', SVC(random_state=random_state, probability=True)),
+], voting='soft')
+eclf.fit(X_train, y_train)
+
+result = classification_report(y_test, eclf.predict(X_test), output_dict=True)
+pd.DataFrame(result).to_csv('../data/stage4.csv')
