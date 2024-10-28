@@ -9,7 +9,7 @@ from sklearn.neighbors import KNeighborsClassifier
 from sklearn.svm import SVC
 from sklearn.metrics import make_scorer, f1_score, classification_report
 from sklearn.pipeline import Pipeline
-from sklearn.ensemble import VotingClassifier
+from sklearn.ensemble import VotingClassifier, RandomForestClassifier
 
 import warnings
 warnings.filterwarnings('ignore')
@@ -59,6 +59,11 @@ sv_params = {
     "clf__shrinking": [True, False]
 }
 
+rf_params = {
+    "clf__n_estimators": range(100, 500, 50),
+    "clf__max_depth": range(1, 20, 1)
+}
+
 result = {}
 
 def eval_model(model_name, clf, params):
@@ -80,16 +85,26 @@ def eval_model(model_name, clf, params):
     return grid_search.best_estimator_
 
 
-clf_sgd = eval_model('sgd', SGDClassifier(random_state=random_state), sgd_params)
-clf_dt = eval_model('dt', DecisionTreeClassifier(random_state=random_state), dt_params)
-clf_kn = eval_model('kn', KNeighborsClassifier(), kn_params)
-clf_sv = eval_model('sv', SVC(random_state=random_state, probability=True), sv_params)
+def voting():
+    clf_sgd = eval_model('sgd', SGDClassifier(random_state=random_state), sgd_params)
+    clf_dt = eval_model('dt', DecisionTreeClassifier(random_state=random_state), dt_params)
+    clf_kn = eval_model('kn', KNeighborsClassifier(), kn_params)
+    clf_sv = eval_model('sv', SVC(random_state=random_state, probability=True), sv_params)
 
-eclf = VotingClassifier(estimators=[
-    ('sgd', clf_sgd),
-    ('sv', SVC(random_state=random_state, probability=True)),
-], voting='soft')
-eclf.fit(X_train, y_train)
+    eclf = VotingClassifier(estimators=[
+        ('rf', clf_rf),
+        ('sv', SVC(random_state=random_state, probability=True)),
+    ], voting='soft')
 
-result = classification_report(y_test, eclf.predict(X_test), output_dict=True)
-pd.DataFrame(result).to_csv('../data/stage4.csv')
+    eclf.fit(X_train, y_train)
+    result = classification_report(y_test, eclf.predict(X_test), output_dict=True)
+    print(result)
+    pd.DataFrame(result).to_csv('../data/stage5.csv')
+
+
+clf_rf = eval_model('rf',
+                    RandomForestClassifier(random_state=random_state, oob_score=True),
+                    rf_params)
+
+result = classification_report(y_test, clf_rf.predict(X_test), output_dict=True)
+pd.DataFrame(result).to_csv('../data/stage5.csv')
