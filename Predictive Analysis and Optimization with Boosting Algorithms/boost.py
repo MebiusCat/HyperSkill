@@ -2,6 +2,8 @@ import os
 import requests
 import pandas as pd
 
+from sklearn.model_selection import train_test_split
+
 def download_data():
     # Create data directory
     if not os.path.exists('../data'):
@@ -18,12 +20,19 @@ download_data()
 df = pd.read_csv('../data/insurance.csv')
 df.drop_duplicates(inplace=True)
 
-num_feature = df.select_dtypes('number').columns.tolist()
-cat_feature = df.select_dtypes('object').columns.tolist()
+X, y = df.drop(columns=['charges']), df['charges']
+
+threshod = 3
+z = abs(y - y.mean()) / y.std()
+X, y = X[z < threshod], y[z < threshod]
+
+X_part, X_test, y_part, y_test = train_test_split(X, y, test_size=0.2, shuffle=True, random_state=10)
+X_train, X_val, y_train, y_val = train_test_split(X_part, y_part, test_size=0.2, shuffle=True, random_state=10)
 
 answer = {
-    'numerical': num_feature,
-    'categorical': cat_feature,
-    'shape': list(df.shape)
+    'all': list(X.shape),
+    'train': [X_train.shape, y_train.shape],
+    'validation': [X_val.shape, y_val.shape],
+    'test': [X_test.shape, y_test.shape]
 }
 print(answer)
