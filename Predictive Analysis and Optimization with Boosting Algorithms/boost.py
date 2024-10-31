@@ -3,6 +3,8 @@ import requests
 import pandas as pd
 
 from sklearn.model_selection import train_test_split
+from sklearn.compose import ColumnTransformer
+from sklearn.preprocessing import StandardScaler, OneHotEncoder
 
 def download_data():
     # Create data directory
@@ -22,6 +24,9 @@ df.drop_duplicates(inplace=True)
 
 X, y = df.drop(columns=['charges']), df['charges']
 
+num_features = X.select_dtypes('number').columns.tolist()
+cat_features = X.select_dtypes('object').columns.tolist()
+
 threshod = 3
 z = abs(y - y.mean()) / y.std()
 X, y = X[z < threshod], y[z < threshod]
@@ -29,10 +34,21 @@ X, y = X[z < threshod], y[z < threshod]
 X_part, X_test, y_part, y_test = train_test_split(X, y, test_size=0.2, shuffle=True, random_state=10)
 X_train, X_val, y_train, y_val = train_test_split(X_part, y_part, test_size=0.2, shuffle=True, random_state=10)
 
+ct = ColumnTransformer(
+    transformers=[
+        ('num', StandardScaler(), num_features),
+        ('cat', OneHotEncoder(), cat_features)
+    ]
+)
+
+ct.fit(X_train)
+X_train_norm = ct.transform(X_train)
+X_test_norm = ct.transform(X_test)
+X_val_norm = ct.transform(X_val)
+
 answer = {
-    'all': list(X.shape),
-    'train': [X_train.shape, y_train.shape],
-    'validation': [X_val.shape, y_val.shape],
-    'test': [X_test.shape, y_test.shape]
+    'train': list(X_train_norm.shape),
+    'validation': list(X_val_norm.shape),
+    'test': list(X_test_norm.shape)
 }
 print(answer)
