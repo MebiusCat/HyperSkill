@@ -1,0 +1,18 @@
+Connection to localhost 9090
+Login found admin1
+Letter found w
+Letter found wF
+Letter found wFA
+Letter found wFAQ
+Letter found wFAQJ
+Letter found wFAQJw
+Letter found wFAQJwr
+Letter found wFAQJwr3
+Connection to localhost 9090
+Login found alex
+Letter found P
+Letter found Pn
+Letter found Pn4
+Letter found Pn4j
+Letter found Pn4jS
+Letter found Pn4jSo
