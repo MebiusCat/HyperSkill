@@ -3,7 +3,9 @@ import json
 import logging
 import socket
 
+
 from itertools import combinations_with_replacement, product
+from time import time
 from string import ascii_lowercase, digits, ascii_uppercase
 
 logging.basicConfig(filename='log_file.txt',
@@ -77,11 +79,16 @@ def main():
             # Step 2 Guessing letter in password
             atom_pass = atom_password(t_pass)
             while True:
+                # counter -= 1
                 password = next(atom_pass)
+                start = time()
                 client_socket.send(get_message(login, password).encode())
                 message = json.loads(client_socket.recv(1024).decode())
+                end = time()
+                circle = end - start
+                logging.debug(f'For {password} It took {(end - start):0.3f}')
                 # logging.debug(f'{password}:{message}')
-                if message['result'] == 'Exception happened during login':
+                if circle > 0.01 or message['result'] == 'Exception happened during login':
                     logging.debug('Letter found %s', password)
                     t_pass = password
                     break

@@ -1,18 +1,185 @@
 Connection to localhost 9090
-Login found admin1
-Letter found w
-Letter found wF
-Letter found wFA
-Letter found wFAQ
-Letter found wFAQJ
-Letter found wFAQJw
-Letter found wFAQJwr
-Letter found wFAQJwr3
-Connection to localhost 9090
-Login found alex
-Letter found P
-Letter found Pn
-Letter found Pn4
-Letter found Pn4j
-Letter found Pn4jS
-Letter found Pn4jSo
+Login found root
+For a It took 0.000
+For b It took 0.000
+For c It took 0.000
+For d It took 0.000
+For e It took 0.000
+For f It took 0.101
+Letter found f
+For fa It took 0.000
+For fb It took 0.000
+For fc It took 0.000
+For fd It took 0.000
+For fe It took 0.000
+For ff It took 0.000
+For fg It took 0.105
+Letter found fg
+For fga It took 0.001
+For fgb It took 0.000
+For fgc It took 0.000
+For fgd It took 0.000
+For fge It took 0.000
+For fgf It took 0.000
+For fgg It took 0.103
+Letter found fgg
+For fgga It took 0.000
+For fggb It took 0.000
+For fggc It took 0.000
+For fggd It took 0.000
+For fgge It took 0.000
+For fggf It took 0.000
+For fggg It took 0.000
+For fggh It took 0.000
+For fggi It took 0.000
+For fggj It took 0.000
+For fggk It took 0.000
+For fggl It took 0.000
+For fggm It took 0.000
+For fggn It took 0.000
+For fggo It took 0.000
+For fggp It took 0.000
+For fggq It took 0.000
+For fggr It took 0.000
+For fggs It took 0.000
+For fggt It took 0.000
+For fggu It took 0.000
+For fggv It took 0.000
+For fggw It took 0.000
+For fggx It took 0.000
+For fggy It took 0.000
+For fggz It took 0.000
+For fgg0 It took 0.000
+For fgg1 It took 0.000
+For fgg2 It took 0.000
+For fgg3 It took 0.000
+For fgg4 It took 0.105
+Letter found fgg4
+For fgg4a It took 0.000
+For fgg4b It took 0.000
+For fgg4c It took 0.000
+For fgg4d It took 0.000
+For fgg4e It took 0.000
+For fgg4f It took 0.000
+For fgg4g It took 0.000
+For fgg4h It took 0.000
+For fgg4i It took 0.000
+For fgg4j It took 0.000
+For fgg4k It took 0.000
+For fgg4l It took 0.000
+For fgg4m It took 0.000
+For fgg4n It took 0.000
+For fgg4o It took 0.000
+For fgg4p It took 0.000
+For fgg4q It took 0.000
+For fgg4r It took 0.000
+For fgg4s It took 0.000
+For fgg4t It took 0.000
+For fgg4u It took 0.000
+For fgg4v It took 0.000
+For fgg4w It took 0.000
+For fgg4x It took 0.000
+For fgg4y It took 0.000
+For fgg4z It took 0.000
+For fgg40 It took 0.000
+For fgg41 It took 0.000
+For fgg42 It took 0.000
+For fgg43 It took 0.103
+Letter found fgg43
+For fgg43a It took 0.000
+For fgg43b It took 0.000
+For fgg43c It took 0.000
+For fgg43d It took 0.000
+For fgg43e It took 0.000
+For fgg43f It took 0.000
+For fgg43g It took 0.000
+For fgg43h It took 0.000
+For fgg43i It took 0.000
+For fgg43j It took 0.000
+For fgg43k It took 0.000
+For fgg43l It took 0.000
+For fgg43m It took 0.000
+For fgg43n It took 0.000
+For fgg43o It took 0.000
+For fgg43p It took 0.000
+For fgg43q It took 0.000
+For fgg43r It took 0.000
+For fgg43s It took 0.000
+For fgg43t It took 0.000
+For fgg43u It took 0.000
+For fgg43v It took 0.000
+For fgg43w It took 0.100
+Letter found fgg43w
+For fgg43wa It took 0.000
+For fgg43wb It took 0.000
+For fgg43wc It took 0.000
+For fgg43wd It took 0.000
+For fgg43we It took 0.000
+For fgg43wf It took 0.000
+For fgg43wg It took 0.000
+For fgg43wh It took 0.000
+For fgg43wi It took 0.000
+For fgg43wj It took 0.000
+For fgg43wk It took 0.000
+For fgg43wl It took 0.000
+For fgg43wm It took 0.000
+For fgg43wn It took 0.000
+For fgg43wo It took 0.000
+For fgg43wp It took 0.000
+For fgg43wq It took 0.000
+For fgg43wr It took 0.000
+For fgg43ws It took 0.000
+For fgg43wt It took 0.000
+For fgg43wu It took 0.000
+For fgg43wv It took 0.000
+For fgg43ww It took 0.000
+For fgg43wx It took 0.000
+For fgg43wy It took 0.000
+For fgg43wz It took 0.000
+For fgg43w0 It took 0.000
+For fgg43w1 It took 0.000
+For fgg43w2 It took 0.000
+For fgg43w3 It took 0.000
+For fgg43w4 It took 0.000
+For fgg43w5 It took 0.000
+For fgg43w6 It took 0.000
+For fgg43w7 It took 0.000
+For fgg43w8 It took 0.105
+Letter found fgg43w8
+For fgg43w8a It took 0.001
+For fgg43w8b It took 0.104
+Letter found fgg43w8b
+For fgg43w8ba It took 0.000
+For fgg43w8bb It took 0.000
+For fgg43w8bc It took 0.000
+For fgg43w8bd It took 0.000
+For fgg43w8be It took 0.000
+For fgg43w8bf It took 0.000
+For fgg43w8bg It took 0.000
+For fgg43w8bh It took 0.000
+For fgg43w8bi It took 0.000
+For fgg43w8bj It took 0.000
+For fgg43w8bk It took 0.000
+For fgg43w8bl It took 0.000
+For fgg43w8bm It took 0.000
+For fgg43w8bn It took 0.000
+For fgg43w8bo It took 0.000
+For fgg43w8bp It took 0.000
+For fgg43w8bq It took 0.000
+For fgg43w8br It took 0.000
+For fgg43w8bs It took 0.000
+For fgg43w8bt It took 0.000
+For fgg43w8bu It took 0.000
+For fgg43w8bv It took 0.000
+For fgg43w8bw It took 0.000
+For fgg43w8bx It took 0.000
+For fgg43w8by It took 0.000
+For fgg43w8bz It took 0.000
+For fgg43w8b0 It took 0.000
+For fgg43w8b1 It took 0.000
+For fgg43w8b2 It took 0.000
+For fgg43w8b3 It took 0.000
+For fgg43w8b4 It took 0.000
+For fgg43w8b5 It took 0.000
+For fgg43w8b6 It took 0.000
+For fgg43w8b7 It took 0.000
