@@ -9,7 +9,7 @@ class CustomLinearRegression:
         self.intercept = None
 
     def fit(self, x, y):
-        X, y = np.array(x).reshape(-1, 1), np.array(y)
+        X, y = np.array(x), np.array(y)
         if self.fit_intercept:
             X = np.column_stack((X, np.ones(len(X))))
         coeffs = np.linalg.inv(X.T @ X) @ X.T @ y
@@ -18,7 +18,19 @@ class CustomLinearRegression:
             self.intercept = float(coeffs[-1])
         else:
             self.coefficient = coeffs
-        print(self.get_weights())
+
+    def predict(self, X):
+        if self.fit_intercept:
+            return X @ np.column_stack(self.coefficient, self.intercept)
+        else:
+            return X @ self.coefficient
+
+    def r2_score(self, y, yhat):
+        pass
+
+    def rmse(self, y, yhat):
+        pass
+
 
     def get_weights(self):
         return {'Intercept': self.intercept,
@@ -26,11 +38,20 @@ class CustomLinearRegression:
 
 
 def main():
-    x = [4.0, 4.5, 5, 5.5, 6.0, 6.5, 7.0]
-    y = [33, 42, 45, 51, 53, 61, 62]
+    # Stage 1
+    # x = [4.0, 4.5, 5, 5.5, 6.0, 6.5, 7.0]
+    # y = [33, 42, 45, 51, 53, 61, 62]
 
-    model = CustomLinearRegression()
-    model.fit(x, y)
+    # Stage 2
+    x = [4, 4.5, 5, 5.5, 6, 6.5, 7]
+    w = [1, -3, 2, 5, 0, 3, 6]
+    z = [11, 15, 12, 9, 18, 13, 16]
+    y = [33, 42, 45, 51, 53, 61, 62]
+    X = np.column_stack([x, w, z])
+    model = CustomLinearRegression(fit_intercept=False)
+    model.fit(X, y)
+
+    print(model.predict(X))
 
 
 if __name__ == '__main__':
