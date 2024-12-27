@@ -26,14 +26,22 @@ def translations(lang='fr', word='hello'):
     words_section = content.find_all('div', {'id': 'translations-content'})[0]
     words = [el.attrs['data-term'] for el in words_section.find_all('a')]
 
-    print('Translations')
-    print(words)
+    examples_in = [el.text.strip() for el in content.find_all('div', {"class": ['src ltr']})]
+    examples_out = [el.text.strip() for el in content.find_all('div', {"class": ['trg ltr']})]
 
-    examples = [el.text.strip() for el in content.find_all('div', {"class": ['src ltr', 'trg ltr']})]
-    print(examples)
+    return words, zip(examples_in, examples_out)
 
+
+def print_output(lang, words, examples):
+    lang_map = {'fr': 'French', 'en': 'English'}
+    print(f'\n{lang_map[lang]} Translations:')
+    print('\n'.join(words[:5]))
+    print(f'\n{lang_map[lang]} Examples:')
+    for sent, transl in list(examples)[:5]:
+        print(f'{sent}\n{transl}\n')
 
 
 if __name__ == '__main__':
     lang, word = intro()
-    translations(lang, word)
+
+    print_output(lang, *translations(lang, word))
