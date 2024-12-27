@@ -51,6 +51,11 @@ def translations(lang=(1, 2), word='hello', show_status=False):
 def output(lang, word, words, examples, limit=5):
     with open(f'{word}.txt', 'w', encoding='utf-8') as f:
         lang_in, lang_out = lang
+
+        if not words:
+            print(f'Sorry, unable to find {word}')
+            quit()
+
         print(f'\n{languages[lang_out]} Translations:')
         print(f'\n{languages[lang_out]} Translations:', file=f)
         print('\n'.join(words[:limit]))
@@ -69,6 +74,9 @@ def output_to_all(lang, word, limit=1):
             if lang_in == i:
                 continue
             words, examples = translations((lang_in, i), word)
+            if not words:
+                print(f'Sorry, unable to find {word}')
+                quit()
 
             print(f'\n{languages[i]} Translations:')
             print(f'\n{languages[i]} Translations:', file=f)
@@ -80,6 +88,17 @@ def output_to_all(lang, word, limit=1):
                 print(f'{sent}\n{transl}\n')
                 print(f'{sent}\n{transl}\n', file=f)
 
+def good_connection():
+    lang_in, lang_out = (1, 2)
+    word = 'hello'
+    headers = {
+        'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/'
+                      '537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36'}
+    url = (f'https://context.reverso.net/translation/{languages[lang_in].lower()}-'
+           f'{languages[lang_out].lower()}/{word}')
+    r = requests.get(url, headers=headers)
+    return r.status_code == 200
+
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
@@ -89,11 +108,23 @@ if __name__ == '__main__':
 
     args = parser.parse_args()
 
+    if args.l1.capitalize() not in languages:
+        print(f"Sorry, the program doesn't support {args.l1}")
+        quit()
+
+    if args.l2.capitalize() not in languages and args.l2 != 'all':
+        print(f"Sorry, the program doesn't support {args.l2}")
+        quit()
+
+    if not good_connection():
+        print("Something wrong with your internet connection")
+        quit()
+
     lang_in = languages.index(args.l1.capitalize())
     lang_out = 0 if args.l2 == 'all' else languages.index(args.l2.capitalize())
     to_all = args.l2 == 'all'
 
     if not to_all:
-        output((lang_in, lang_out), args.word, *translations((lang_in, lang_out), args.word, True))
+        output((lang_in, lang_out), args.word, *translations((lang_in, lang_out), args.word))
     else:
         output_to_all((lang_in, lang_out), args.word)
