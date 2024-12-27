@@ -1,6 +1,8 @@
+import argparse
 import requests
 
 from bs4 import BeautifulSoup
+
 
 languages = ['Arabic', 'German', 'English', 'Spanish',
              'French', 'Hebrew', 'Japanese', 'Dutch',
@@ -46,7 +48,7 @@ def translations(lang=(1, 2), word='hello', show_status=False):
     return words, zip(examples_in, examples_out)
 
 
-def output(lang, words, examples, limit=5):
+def output(lang, word, words, examples, limit=5):
     with open(f'{word}.txt', 'w', encoding='utf-8') as f:
         lang_in, lang_out = lang
         print(f'\n{languages[lang_out]} Translations:')
@@ -80,10 +82,18 @@ def output_to_all(lang, word, limit=1):
 
 
 if __name__ == '__main__':
-    # get_results(12, 0, 'глаза')
-    lang, word, to_all = intro()
+    parser = argparse.ArgumentParser()
+    parser.add_argument("l1", type=str)
+    parser.add_argument("l2", type=str)
+    parser.add_argument("word", type=str)
+
+    args = parser.parse_args()
+
+    lang_in = languages.index(args.l1.capitalize())
+    lang_out = 0 if args.l2 == 'all' else languages.index(args.l2.capitalize())
+    to_all = args.l2 == 'all'
 
     if not to_all:
-        output(lang, *translations(lang, word, True))
+        output((lang_in, lang_out), args.word, *translations((lang_in, lang_out), args.word, True))
     else:
-        output_to_all(lang, word)
+        output_to_all((lang_in, lang_out), args.word)
