@@ -12,6 +12,7 @@ def intro():
     print(f'You chose "{lang}" as the language to translate "{word}" to.')
     return lang, word
 
+
 def translations(lang='fr', word='hello'):
     lang_map = {'fr': 'english-french', 'en': 'french-english'}
     headers = {
@@ -20,22 +21,15 @@ def translations(lang='fr', word='hello'):
     url = f'https://context.reverso.net/translation/{lang_map[lang]}/{word}'
     r = requests.get(url, headers=headers)
     print(f'{r.status_code} {r.reason}')
-    soup = BeautifulSoup(r.content, 'html.parser')
-    tr_content = soup.find_all('div', {'id': 'translations-content'})
-    words = []
-    for el in tr_content:
-        for chel in el.find_all():
-            if chel.has_attr('data-term'):
-                words.append(chel.attrs['data-term'])
+
+    content = BeautifulSoup(r.content, 'html.parser')
+    words_section = content.find_all('div', {'id': 'translations-content'})[0]
+    words = [el.attrs['data-term'] for el in words_section.find_all('a')]
 
     print('Translations')
     print(words)
 
-    examples = []
-    tr_example = soup.find_all('div', {'class': 'example'})
-    for sent in tr_example:
-        examples.append(sent.find('div', {'class': 'src ltr'}).text.strip())
-        examples.append(sent.find('div', {'class': 'trg ltr'}).text.strip())
+    examples = [el.text.strip() for el in content.find_all('div', {"class": ['src ltr', 'trg ltr']})]
     print(examples)
 
 
