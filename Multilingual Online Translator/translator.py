@@ -2,23 +2,31 @@ import requests
 
 from bs4 import BeautifulSoup
 
-def intro():
-    GREETING = 'Type "en" if you want to translate from French into English, or "fr" if you want to translate from English into French:'
+languages = ['Arabic', 'German', 'English', 'Spanish',
+             'French', 'Hebrew', 'Japanese', 'Dutch',
+             'Polish', 'Portuguese', 'Romanian', 'Russian', 'Turkish']
 
-    print(GREETING)
-    lang = input()
+def intro():
+    print('Hello, welcome to the translator. Translator supports: ')
+    print([f'{i + 1}. {name}' for i, name in enumerate(languages)])
+
+    print('Type the number of your language: ')
+    lang_in = int(input())
+    print('Type the number of language you want to translate to:')
+    lang_out = int(input())
     print('Type the word you want to translate:')
     word = input()
-    print(f'You chose "{lang}" as the language to translate "{word}" to.')
-    return lang, word
+    # print(f'You chose "{lang}" as the language to translate "{word}" to.')
+    return (lang_in - 1, lang_out - 1), word
 
 
-def translations(lang='fr', word='hello'):
-    lang_map = {'fr': 'english-french', 'en': 'french-english'}
+def translations(lang=(1, 2), word='hello'):
+    lang_in, lang_out = lang
     headers = {
         'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/'
                       '537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36'}
-    url = f'https://context.reverso.net/translation/{lang_map[lang]}/{word}'
+    url = (f'https://context.reverso.net/translation/{languages[lang_in].lower()}-'
+           f'{languages[lang_out].lower()}/{word}')
     r = requests.get(url, headers=headers)
     print(f'{r.status_code} {r.reason}')
 
@@ -33,10 +41,10 @@ def translations(lang='fr', word='hello'):
 
 
 def print_output(lang, words, examples):
-    lang_map = {'fr': 'French', 'en': 'English'}
-    print(f'\n{lang_map[lang]} Translations:')
+    lang_in, lang_out = lang
+    print(f'\n{languages[lang_out]} Translations:')
     print('\n'.join(words[:5]))
-    print(f'\n{lang_map[lang]} Examples:')
+    print(f'\n{languages[lang_out]} Examples:')
     for sent, transl in list(examples)[:5]:
         print(f'{sent}\n{transl}\n')
 
