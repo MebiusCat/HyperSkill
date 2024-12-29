@@ -1,4 +1,5 @@
 import os
+import re
 import sys
 
 error_key = {
@@ -8,6 +9,9 @@ error_key = {
     'S004': 'At least two spaces required before inline comments',
     'S005': 'TODO found (in comments only and case-insensitive)',
     'S006': 'More than two blank lines preceding a code line',
+    'S007': 'Too many spaces after \'class\'',
+    'S008': 'Class name should use CamelCase',
+    'S009': 'Function name should use snake_case',
 }
 
 class ErrorChecker:
@@ -42,6 +46,12 @@ class ErrorChecker:
             errors.append('S004')
         if self.rule_005(data):
             errors.append('S005')
+        if self.rule_007(data):
+            errors.append('S007')
+        if self.rule_008(data):
+            errors.append('S008')
+        if self.rule_009(data):
+            errors.append('S009')
         return errors
 
     @staticmethod
@@ -96,8 +106,21 @@ class ErrorChecker:
                 blank_line_count = 0
         return errors
 
-# file_pwd = 'data/'
-# test/test_1.py
+    @staticmethod
+    def rule_007(row):
+        pattern = r'[class|def]\s{2,}\S'
+        return bool(re.search(pattern, row))
+
+    @staticmethod
+    def rule_008(row):
+        pattern = r'class [a-z]\w+:'
+        return bool(re.search(pattern, row))
+
+    @staticmethod
+    def rule_009(row):
+        pattern = r'def [A-Z]'
+        return bool(re.search(pattern, row))
+
 
 file_pwd = sys.argv[1]
 if os.path.isdir(file_pwd):
@@ -117,5 +140,5 @@ for path in sorted(paths):
     for key, value in checker.result.items():
         if not value:
             continue
-        for el in value:
+        for el in sorted(value):
             print(f'{f.name}: Line {key + 1}: {el} {error_key[el]}')
