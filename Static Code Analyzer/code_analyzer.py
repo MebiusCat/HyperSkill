@@ -1,3 +1,6 @@
+import os
+import sys
+
 error_key = {
     'S001': 'Too long',
     'S002': 'Indentation is not a multiple of four',
@@ -8,10 +11,10 @@ error_key = {
 }
 
 class ErrorChecker:
-    def __init__(self, text):
+    def __init__(self, text, path=''):
         self.text = text
         self.result = {}
-
+        self.path = path
         self.check_data()
 
     def check_data(self):
@@ -93,13 +96,26 @@ class ErrorChecker:
                 blank_line_count = 0
         return errors
 
-file_pwd = input()
-# file_pwd = '../data/file.txt'
-with open(f'{file_pwd}') as f:
-    content = f.readlines()
+# file_pwd = 'data/'
+# test/test_1.py
 
-checker = ErrorChecker(content)
-for key, value in checker.result.items():
-    if value:
+file_pwd = sys.argv[1]
+if os.path.isdir(file_pwd):
+    paths = []
+    for root, dirs, files in os.walk(file_pwd, topdown=False):
+        for name in files:
+            if name[-3:] != '.py':
+                continue
+            paths.append(os.path.join(root, name))
+else:
+    paths = [file_pwd]
+
+for path in sorted(paths):
+    with open(f'{path}') as f:
+        content = f.readlines()
+    checker = ErrorChecker(content)
+    for key, value in checker.result.items():
+        if not value:
+            continue
         for el in value:
-            print(f'Line {key + 1}: {el} {error_key[el]}')
+            print(f'{f.name}: Line {key + 1}: {el} {error_key[el]}')
