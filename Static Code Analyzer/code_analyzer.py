@@ -1,3 +1,4 @@
+import ast
 import os
 import re
 import sys
@@ -12,14 +13,19 @@ error_key = {
     'S007': 'Too many spaces after \'class\'',
     'S008': 'Class name should use CamelCase',
     'S009': 'Function name should use snake_case',
+    'S010': 'Argument name arg_name should be written in snake_case',
+    'S011': 'Variable var_name should be written in snake_case',
+    'S012': 'The default argument value is mutable',
 }
 
 class ErrorChecker:
-    def __init__(self, text, path=''):
+    def __init__(self, text, tree, path=''):
         self.text = text
         self.result = {}
         self.path = path
+        self.tree = tree
         self.check_data()
+
 
     def check_data(self):
         for i, line in enumerate(self.text):
@@ -33,6 +39,14 @@ class ErrorChecker:
             self.result[elem].extend(
                 ['S006'])
 
+        if checking := self.rule_010():
+            self.result.setdefault(checking - 1, []).append('S010')
+        if checking := self.rule_011():
+            for lineno in checking:
+                self.result.setdefault(lineno - 1, []).append('S011')
+        if checking := self.rule_012():
+            for lineno in checking:
+                self.result.setdefault(lineno - 1, []).append('S012')
 
     def check_row(self, data):
         errors = []
@@ -122,6 +136,41 @@ class ErrorChecker:
         return bool(re.search(pattern, row))
 
 
+    @staticmethod
+    def snake_case(data):
+        return re.fullmatch(r'[a-z_][a-z0-9_]*', data) is not None
+
+
+    def rule_010(self):
+        for node in ast.walk(self.tree):
+            if isinstance(node, ast.FunctionDef):
+                for arg in node.args.args:
+                    if not self.snake_case(arg.arg):
+                        return arg.lineno
+
+    def rule_011(self):
+        errors = []
+        for node in ast.walk(self.tree):
+            if isinstance(node, ast.Assign) and isinstance(node.parent, ast.FunctionDef):
+                for target in node.targets:
+                    if isinstance(target, ast.Name) and not self.snake_case(target.id):
+                        errors.append(target.lineno)
+        return errors
+
+    def rule_012(self):
+        errors = []
+        for node in ast.walk(self.tree):
+            if isinstance(node, ast.FunctionDef):
+                for arg, default in zip(node.args.args, node.args.defaults):
+                    if isinstance(default, (ast.List, ast.Dict, ast.Set)):
+                        errors.append(arg.lineno)
+        return errors
+
+
+# file_pwd = '/Users/mebiuscat/Projects/HyperSkill/Static Code Analyzer/Static Code Analyzer/task/test/this_stage/test_7.py'
+# file_pwd = '/Users/mebiuscat/Projects/HyperSkill/Static Code Analyzer/Static Code Analyzer/task/analyzer/data/file_3.txt'
+# test/test_1.py
+
 file_pwd = sys.argv[1]
 if os.path.isdir(file_pwd):
     paths = []
@@ -136,7 +185,13 @@ else:
 for path in sorted(paths):
     with open(f'{path}') as f:
         content = f.readlines()
-    checker = ErrorChecker(content)
+        tree = ast.parse(''.join(content))
+
+    for node in ast.walk(tree):
+        for child in ast.iter_child_nodes(node):
+            child.parent = node
+
+    checker = ErrorChecker(content, tree=tree)
     for key, value in checker.result.items():
         if not value:
             continue
